@@ -1,0 +1,18 @@
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+
+# Parquet gerado pelo pipeline (o CSV de entrada versionado em dados/ NAO e ignorado)
+data/
+spark-warehouse/
+metastore_db/
+derby.log
+
+# Ambiente
+.env
+.idea/
+.vscode/
+.DS_Store
