@@ -12,7 +12,7 @@ cada regra do pipeline ter um motivo de existir.
 
 ## Como rodar
 
-Precisa de **Python 3.9+** e **Java 11+** (o Spark roda sobre a JVM).
+Precisa de **Python 3.9+** e **Java 11+** 
 
 ```bash
 python -m venv .venv
@@ -90,13 +90,12 @@ Resultado: 27 linhas entram, 23 saem. Nenhum `id_venda` repetido, nenhuma data n
 
 ## Quatro bugs que só apareceram ao rodar
 
-Nada aqui apareceu escrevendo o código; tudo apareceu executando.
 
-1. **`189.90` virou `18990.0`.** A primeira versão do CSV tinha valores em dois formatos e minha regra
-   tratava ponto como separador de milhar. O resultado estava 100× errado e **ninguém avisou** — o
+1. **`189.90` virou `18990.0`.** A primeira versão do CSV tinha valores em dois formatos e a regra
+   tratava ponto como separador de milhar. O resultado estava 100× errado — o
    `count()` continuava 23. Corrigi padronizando a entrada em formato brasileiro: o número depende do
-   sistema de origem, e adivinhar é pior do que exigir um formato só.
-2. **O teste passava e o dado real falhava.** A regra de situação vazia checava texto vazio (`""`), e o
+   sistema de origem.
+2. A regra de situação vazia checava texto vazio (`""`), e o
    CSV entrega `null`. O teste montava o DataFrame com `""` e passava; o pipeline real deixava `situacao`
    nula. O teste virou parametrizado (`null` e `""`) e a regra passou a checar os dois.
 3. **`to_date` não aceita lista de formatos** no PySpark 3.5 (`Method to_date([Column, ArrayList]) does not
@@ -112,7 +111,7 @@ Nada aqui apareceu escrevendo o código; tudo apareceu executando.
 - **Schema declarado com tudo como `string`.** Se eu deixasse o Spark inferir, `valor_unitario` viraria
   `string` numa linha e `double` na outra, porque o arquivo mistura formatos. Lendo tudo como texto, a
   conversão acontece num lugar só, de propósito.
-- **Nem todo nulo é preenchido.** `quantidade` vazia é 1 (não há como a venda ser "meia"). Já preço vazio
+- **Nem todo nulo é preenchido.** `quantidade` vazia é 1. Já preço vazio
   continua nulo: inventar 0 ou 1 distorceria o faturamento. O log avisa e a decisão fica com quem lê.
 - **Modo `overwrite` na gravação**, o que torna a execução idempotente: rodar duas vezes não duplica
   linha. Reprocessar é seguro.
@@ -150,12 +149,10 @@ pasta que contenha `bin\winutils.exe`.
 
 ---
 
-## O que não tem aqui, de propósito
+## O que não tem aqui:
 
-Este projeto é pequeno porque é o **primeiro degrau**: mostrar que sei ler, limpar e gravar em Parquet, e
-explicar cada decisão. Não tem orquestração (Airflow), quality gate com bloqueio de publicação,
+Não tem orquestração (Airflow), quality gate com bloqueio de publicação,
 particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
 
 Se subir um degrau, a ordem seria: quality gate que reprova a publicação → particionamento por data →
-DAG no Airflow → escrita em Delta. Cada passo cabe em meio dia e só faz sentido depois que este estiver
-dominado.
+DAG no Airflow → escrita em Delta.
