@@ -27,13 +27,6 @@ CABECALHO = (
 
 @pytest.fixture(scope="session")
 def spark():
-    """Sessao Spark local para os testes.
-
-    O worker do Spark e um processo Python separado, e ele sobe o "python" que estiver no
-    PATH, que na maquina de desenvolvimento era um Python 3.14 sem o PySpark instalado. O
-    sintoma era "Python worker failed to connect back" em todos os testes. Apontar as duas
-    variaveis para o mesmo interpretador do driver resolve.
-    """
     os.environ["PYSPARK_PYTHON"] = sys.executable
     os.environ["PYSPARK_DRIVER_PYTHON"] = sys.executable
 
@@ -100,11 +93,6 @@ def test_duplicada_mantem_a_data_mais_recente(spark):
 
 @pytest.mark.parametrize("situacao", [None, ""])
 def test_nulos_recebem_valor_padrao(spark, situacao):
-    """Parametrizado porque o CSV traz campo vazio como NULO e o teste antigo so cobria "".
-
-    Foi assim que o bug apareceu: o teste passava com texto vazio enquanto o dado real,
-    que chega como nulo, deixava a situacao nula depois do pipeline.
-    """
     df = spark.createDataFrame(
         [("V1", "C1", "2026-01-05", "mouse", "perifericos", "", "10,00", "web", situacao)],
         CABECALHO,
@@ -115,7 +103,6 @@ def test_nulos_recebem_valor_padrao(spark, situacao):
 
 
 def test_valor_sem_preco_permanece_nulo(spark):
-    """Nem todo nulo deve virar zero: uma venda sem preco distorceria o faturamento."""
     df = spark.createDataFrame(
         [("V1", "C1", "2026-01-05", "mouse", "perifericos", "2", None, "web", "aprovado")],
         CABECALHO,

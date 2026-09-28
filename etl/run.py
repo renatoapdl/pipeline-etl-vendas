@@ -1,9 +1,4 @@
-"""Executa o pipeline inteiro: CSV -> Parquet bruto -> limpeza e transformacao -> Parquet.
-
-Uso:
-    python etl/run.py
-    python etl/run.py --entrada dados/vendas_bruto.csv --saida data
-    spark-submit etl/run.py --entrada dados/vendas_bruto.csv
+"""Executa o pipeline inteiro.
 """
 from __future__ import annotations
 
@@ -25,8 +20,7 @@ SAIDA_PADRAO = RAIZ / "data"
 
 def get_spark(app_name: str = "etl-vendas"):
     """Sessao Spark local.
-
-    O master so e definido quando o processo NAO veio do spark-submit. Se fosse definido
+    O master só é definido quando o processo não veio do spark-submit. Se fosse definido
     sempre, o .master() sobrescreveria o --master da linha de comando e o job rodaria
     local mesmo num cluster.
     """
@@ -56,8 +50,6 @@ def main() -> None:
         destino_bruto = load.gravar_parquet(bruto, args.saida / "bruto" / "vendas")
         print(f"[2] bruto gravado em {destino_bruto.relative_to(RAIZ)}\n")
 
-        # Cada regra e aplicada e contada separadamente, para dar para conferir o efeito
-        # de cada uma no log em vez de so ver o resultado final.
         etapas = (
             ("R1 descartadas sem id ou data", transform.descartar_incompletos),
             ("R2 datas convertidas", transform.padronizar_datas),
@@ -76,9 +68,7 @@ def main() -> None:
         invalidas = atual.filter("data_venda is null").count()
         print(f"\n[3] tratada: {atual.count()} linhas" + (f", {invalidas} com data invalida" if invalidas else ""))
 
-        # Nem todo nulo deve ser preenchido: uma venda sem preco continua nula, porque
-        # inventar 0 ou 1 distorceria o faturamento. O pipeline so avisa e deixa a decisao
-        # de negocio (descartar, corrigir na origem ou aprovar assim) para quem le.
+        
         sem_preco = atual.filter(col("valor_unitario").isNull()).count()
         if sem_preco:
             print(f"    ATENCAO: {sem_preco} venda(s) sem valor_unitario; valor_total fica nulo")

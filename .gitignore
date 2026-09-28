@@ -5,7 +5,7 @@ __pycache__/
 venv/
 .pytest_cache/
 
-# Parquet gerado pelo pipeline (o CSV de entrada versionado em dados/ NAO e ignorado)
+# Spark
 data/
 spark-warehouse/
 metastore_db/
