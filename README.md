@@ -6,6 +6,8 @@
 [![Apache Parquet](https://img.shields.io/badge/Parquet-50ABF1?style=for-the-badge&logo=apacheparquet&logoColor=white)](https://parquet.apache.org/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
 
+![Saída do pipeline ETL](imagens/print_etl.png)
+
 Pipeline de dados em PySpark: lê um CSV sujo, grava o bruto em Parquet, limpa e transforma, e grava
 o resultado em Parquet.
 
