@@ -105,16 +105,19 @@ Resultado: 27 linhas entram, 23 saem. Nenhum `id_venda` repetido, nenhuma data n
 
 ## Decisões que eu tomei, e por quê
 
-- Schema declarado com tudo como `string`. Se eu deixasse o Spark inferir, `valor_unitario` viraria
-  `string` numa linha e `double` na outra, porque o arquivo mistura formatos. Lendo tudo como texto, a
-  conversão acontece num lugar só, de propósito.
-- Nem todo nulo é preenchido. `quantidade` vazia é 1. Já preço vazio continua nulo: inventar 0 ou 1
-  distorceria o faturamento. O log avisa e a decisão fica com quem lê.
-- Modo `overwrite` na gravação, o que torna a execução idempotente: rodar duas vezes não duplica
-  linha. Reprocessar é seguro.
-- Sem particionamento por data. Com 23 linhas seria enfeite. Serve aqui para mostrar o conceito; num
-  volume real, `partitionBy("data_venda")` é o que evita varrer tudo a cada consulta.
-- `valor_total` é o campo derivado, calculado a partir de dois campos de origem.
+- Schema declarado com tudo como `string`. Se o Spark inferisse, `valor_unitario` viraria `string` numa linha e `double` na outra. Lendo tudo como texto, a conversão fica num só lugar.
+- Nem todo nulo é preenchido. `quantidade` vazia vira 1. Preço vazio continua nulo, porque inventar um valor distorceria o faturamento. O log avisa, e a decisão fica com quem lê.
+- Gravação com `overwrite`, o que torna a execução idempotente: rodar duas vezes não duplica linhas.
+- Sem particionamento por data, porque 23 linhas não justificam isso. Serve para mostrar o conceito.
+- `valor_total` é derivado, calculado a partir de `quantidade` e `valor_unitario`.
+
+## Como esse código foi construído
+
+O `etl/transform.py` foi reescrito à mão, regra por regra. Cada função (R1 a R6 + D1) cuida de uma coisa só, e `tratar()` junta tudo na ordem certa.
+
+O objetivo foi entender o problema antes de escrever a solução. Por isso, `quantidade` vazia virou 1, mas `valor_unitario` vazio continua nulo. E para duplicados, ficou só a venda mais recente por `id_venda`.
+
+O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisão clara no código.
 
 ## Arquivos
 
