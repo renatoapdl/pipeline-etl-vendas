@@ -25,4 +25,4 @@ def padronizar_datas(df: DataFrame) -> DataFrame:
 
 def converter_valores(df: DataFrame) -> DataFrame:
     limpo = regexp_replace(trim(col("valor_unitario")), r"[^0-9,]", "")
-    return df.withColumn("valor_unitario", replace(limpo, ",", ".").cast("double"))
+    return df.withColumn("valor_unitario", regexp_replace(limpo, ",", ".").cast("double"))
