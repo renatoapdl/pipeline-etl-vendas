@@ -7,6 +7,7 @@ from pyspark.sql.functions import (
     regexp_replace,
     lower,
     lit,
+    round as arredondar,
 )
 
 
@@ -45,3 +46,10 @@ def preencher_nulos(df: DataFrame) -> DataFrame:
         df.withColumn("quantidade", when(qtd_vazia, lit(1)).otherwise(col("quantidade").cast("int")))
         .withColumn("situacao", when(sit_vazia, lit("desconhecida")).otherwise(lower(trim(col("situacao")))))
     )
+
+
+""" ---> Preencher Nulos aqui """
+
+
+def criar_valor_total(df: DataFrame) -> DataFrame:
+    return df.withColumn("valor_total", arredondar(col("quantidade") * col("valor_unitario"), 2))
