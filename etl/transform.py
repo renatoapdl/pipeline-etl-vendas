@@ -6,6 +6,7 @@ from pyspark.sql.functions import (
     trim,
     regexp_replace,
     lower,
+    lit,
 )
 
 
@@ -34,4 +35,13 @@ def normalizar_texto(df: DataFrame) -> DataFrame:
         .withColumn("categoria", lower(trim(col("categoria"))))
         .withColumn("canal", lower(trim(col("canal"))))
         .withColumn("situacao", lower(trim(col("situacao"))))
+    )
+
+
+def preencher_nulos(df: DataFrame) -> DataFrame:
+    qtd_vazia = col("quantidade").isNull() | (trim(col("quantidade")) == "")
+    sit_vazia = col("situacao").isNull() | (trim(col("situacao")) == "")
+    return (
+        df.withColumn("quantidade", when(qtd_vazia, lit(1)).otherwise(col("quantidade").cast("int")))
+        .withColumn("situacao", when(sit_vazia, lit("desconhecida")).otherwise(lower(trim(col("situacao")))))
     )
