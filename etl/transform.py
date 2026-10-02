@@ -1,4 +1,4 @@
-from pyspark.sql import DataFrame 
+from pyspark.sql import DataFrame, Window 
 from pyspark.sql.functions import (
     col,
     when,
@@ -7,6 +7,7 @@ from pyspark.sql.functions import (
     regexp_replace,
     lower,
     lit,
+    row_number,
     round as arredondar,
 )
 
@@ -48,7 +49,12 @@ def preencher_nulos(df: DataFrame) -> DataFrame:
     )
 
 
-""" ---> Preencher Nulos aqui """
+
+def remover_duplicadas(df: DataFrame) -> DataFrame:
+    janela = Window.partitionBy("id_venda").orderBy(col("data_venda").desc())
+    df_com_numero = df.withColumn("rn", row_number().over(janela))
+    return df_com_numero.filter(col("rn") == 1).drop("rn")
+
 
 
 def criar_valor_total(df: DataFrame) -> DataFrame:
