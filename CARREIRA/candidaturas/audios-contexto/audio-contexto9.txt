@@ -1,0 +1,24 @@
+# Transcricao — audio-contexto9
+
+- Arquivo: audio-contexto9.ogg
+- Duracao: 63.6s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 7
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Tudo é conceito, que você pode ir aplicando, e na hora de um futuro entrevista, você já pode usar, né?
+
+É tal o projeto pessoal, usar a arquitetura, acho que é medalhão, o nome, estou lembrando o cabeça agora,
+
+mas acho que é a medalhão, o dado na bronze, o dado pruto, extraído a PI e tal,
+
+Fiz tal transformação, a regra de negócio tal, salvei na prata e depois fiz limpeza de dados tal, entreguei o dado na gold pra consumo de BI, sei lá, ou salvei no banco de dados, né?
+
+Aí tu pode usar também um banco de dados que é nativo aí do Python, o SQLite, também já pegaria essa...
+
+Talvez não esse primeiro projeto que a gente conversou, mas talvez com o que fosse uma V2, uma V3 do projeto,
+
+já entregar a tabela final num SQLite da vida, num banco de Davos.

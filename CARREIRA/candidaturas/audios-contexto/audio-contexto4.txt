@@ -1,0 +1,26 @@
+# Transcricao — audio-contexto4
+
+- Arquivo: audio-contexto4.ogg
+- Duracao: 36.3s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 8
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Mas, assim, eu acho que o primeiro passo que tu já consegue fazer é realmente não vai pilar em simples.
+
+Distrair um dado, pode ser de um CSV, ou já de outro arquivo, ou de um API também, se tu quiser.
+
+É, de um API interessante que não precisa subir nada assim, né, de arquivo.
+
+Podia ser do CENIPA, mano. Eu fiz alguma coisa do CENIPA, mas acho que eu fiz com EBSCRAP.
+
+Não lembro se eles têm API. Talvez se fosse o caso de dar uma olhada, se tem API.
+
+Talvez se fosse um ponto de partida até melhor.
+
+Consumidade de um API, ao invés de um arquivo.
+
+Mas um arquivo também é superválido, só vai mudar ali a fonte.

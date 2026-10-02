@@ -1,0 +1,112 @@
+# Transcricao — audio-contexto
+
+- Arquivo: audio-contexto.ogg
+- Duracao: 268.5s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 51
+- Transcrito em: 25/09/2026 13:35
+
+---
+
+[00:00] Não sei se eu tinha mandado já, mas tinha avançado, que era uma mulher para a vaga do banco e ela não aceitou a proposta, acho que foi por conta de financeiro.
+
+[00:14] Aí eles foram para a segunda pessoa da lista, tinham dois, essa mulher primeiro e esse cara.
+
+[00:21] Aí o cara deu algum vacilo lá no RH...
+
+[00:24] aí eu tive o meu on-on com a coordenadora do banco...
+
+[00:30] na verdade, do projeto...
+
+[00:33] mais um coordenador imediato aqui.
+
+[00:37] Aí eu estava perguntando o que foi...
+
+[00:39] basicamente foi que ele não tinha uma formação completa.
+
+[00:43] Aí o banco pediu...
+
+[00:45] e era um pré-requisito...
+
+[00:47] a princípio... nas primeiras entrevistas que tinha...
+
+[00:51] E parece que no final, quando pedir a compravação, ele não tinha, parece que tinha um curso técnico,
+
+[00:56] alguma coisa desse tipo.
+
+[00:58] A experiência o cara tinha, só que não passou.
+
+[01:01] Aí vai abrir a vaga de novo, aí eu puxei de novo o assunto no meu ONU,
+
+[01:07] para indicação de um junho e tal.
+
+[01:11] Aí ela diz que vai ver lá quanto é que está,
+
+[01:14] quanto é que eles estão pagando mais ou menos,
+
+[01:16] ela diz que eles não gostam muito de abrir assim,
+
+[01:20] mas ela vai tentar extrair isso e também para pleno, né?
+
+[01:24] Aí ela pediu assim... não é nada certo, né?
+
+[01:27] Mas pediu para eu já ver contigo se melhorar o Linkedin, né?
+
+[01:32] Colocar algumas coisas lá, porque ela disse que o RH, mesmo eu indicando e ela passando por RH,
+
+[01:40] o RH meio que vai olhar essas coisas, né?
+
+[01:43] É currículo, o próprio Linkedin, então era interessante projetos pessoais, né?
+
+[01:49] Tenha demonstrando domínio ali sobre algumas coisas.
+
+[01:55] Aí eu posso também te passar algumas coisas nesse sentido.
+
+[01:59] E se tu não tiver nada assim, cria alguma coisa mais simples mesmo
+
+[02:04] só para demonstrar que tu tem um conhecimento nas ferramentas.
+
+[02:11] Aí ela, por ela, se fosse assim, direto com o banco
+
+[02:15] porque essa vaga é para, é como se fosse um hub de inovação do banco, que é uma empresa
+
+[02:24] do próprio banco, esqueci o nome, acho que já te falei o nome lá da empresa, Dominovação,
+
+[02:33] por lá é um outro gestor, se fosse por banco ela teria mais contato direto com quem
+
+[02:39] encontrada aí como é pela doma ela vai tentar ver se é muito demorado né trocar
+
+[02:46] essa vaga pra junho ou pra pleno né que aí ela perguntou né se eu achava que
+
+[02:53] tu desenrolaria um pleno talvez por conta de salário né ser um pouco melhor
+
+[02:58] perguntando ela perguntou por alto assim a expectativa de salário tal
+
+[03:02] aí eu falei por alto né mais ou menos do que que tu me mandou ela é talvez o
+
+[03:06] paga isso aí para um junho, talvez um pouco menos, talvez fosse interessante um pleno,
+
+[03:12] acho que ele desenrolaria, é um pleno. Eu falei, a capacidade de aprendizado é muito alta dele,
+
+[03:18] realmente eu indicaria até para pleno. Aí até comentei, mesmo se for um especialista,
+
+[03:24] Rafa, você colocar um especialista aqui, eu vou ter que ensinar muita coisa, muita coisa.
+
+[03:29] Aí eu concordo realmente qualquer pessoa que entrar, mesmo na senioridade maior,
+
+[03:35] vai ter essa cor de aprendizado nas primeiras semanas, primeiros meses, né. Então assim
+
+[03:41] é nada certo, mas ela vai tentar ver do lado de lá, essa questão se consegue para
+
+[03:47] o cavalo para um junho ou para pleno, a depender ali do que eles retornarem sobre salários,
+
+[03:53] né. E aí se rolar nessa troca ali, a ideia realmente é a primeira alternativa,
+
+[04:02] eu queria tentar a sua contratação, né? Aí a gente precisaria estar realmente com o
+
+[04:08] linkadim a um nível bem legal, porque ela diz que o RH filtra pelo linkadim e curríplo, né?
+
+[04:19] Aí qualquer coisa vai vendo aí com a IA para tu ir já ajustando o linkadim mesmo com
+
+[04:27] e dá-lhes.

@@ -1,0 +1,37 @@
+
+=== TEMPLATE REEL MANHÃ (60 segundos) ===
+
+Slide 1 (5s):
+- Fundo: Azul escuro com estrelas
+- Texto: "Bom dia, filho(a) de Deus"
+- Fonte: Serifada, dourada
+
+Slide 2 (10s):
+- Fundo: Sol nascendo
+- Texto: [VERSÍCULO DO DIA]
+- Fonte: Serifada, branca
+
+Slide 3 (15s):
+- Fundo: Suave, claro
+- Texto: [ORAÇÃO DA MANHÃ]
+- Fonte: Serifada, escura
+
+Slide 4 (15s):
+- Fundo: Cruz + luz
+- Texto: [REFLEXÃO]
+- Fonte: Sans-serif, escura
+
+Slide 5 (10s):
+- Fundo: Branco
+- Texto: [ORAÇÃO CONCLUSIVA]
+- Fonte: Serifada, escura
+
+Slide 6 (5s):
+- Fundo: Logo do canal
+- Texto: "Salve e compartilhe"
+- Fonte: Sans-serif, branca
+
+=== MÚSICA DE FUNDO ===
+- Suave, instrumental
+- Volume baixo (20-30%)
+- Estilo: Piano ou violão

@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Reel Noite - Canal Dark Devocionais</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #0a0a1a;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 270px;
+            height: 480px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .slide-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        /* Slide 1 - Capa */
+        .slide-1 {
+            background: linear-gradient(135deg, #0A0E17 0%, #111827 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .moon-stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+
+        .moon {
+            position: absolute;
+            top: 60px;
+            right: 40px;
+            width: 50px;
+            height: 50px;
+            background: #C0C0C0;
+            border-radius: 50%;
+            box-shadow: 0 0 20px rgba(192, 192, 192, 0.5);
+        }
+
+        .moon::after {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 10px;
+            width: 35px;
+            height: 35px;
+            background: #111827;
+            border-radius: 50%;
+        }
+
+        .stars-night {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(2px 2px at 20px 30px, #C0C0C0, transparent),
+                        radial-gradient(2px 2px at 40px 70px, #C0C0C0, transparent),
+                        radial-gradient(2px 2px at 50px 160px, #C0C0C0, transparent),
+                        radial-gradient(2px 2px at 90px 40px, #C0C0C0, transparent),
+                        radial-gradient(2px 2px at 130px 80px, #C0C0C0, transparent),
+                        radial-gradient(2px 2px at 160px 120px, #C0C0C0, transparent);
+            opacity: 0.6;
+        }
+
+        .slide-1 h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 24px;
+            color: #C0C0C0;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        .slide-1 .subtitle {
+            font-size: 14px;
+            color: #3B82F6;
+            z-index: 1;
+        }
+
+        /* Slide 2 - Evangelho */
+        .slide-2 {
+            background: #111827;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .heart-icon {
+            width: 50px;
+            height: 50px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .heart-icon::before,
+        .heart-icon::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            width: 30px;
+            height: 45px;
+            background: #FFFFFF;
+            border-radius: 30px 30px 0 0;
+        }
+
+        .heart-icon::before {
+            left: 0;
+            transform: rotate(-45deg);
+            transform-origin: bottom right;
+        }
+
+        .heart-icon::after {
+            right: 0;
+            transform: rotate(45deg);
+            transform-origin: bottom left;
+        }
+
+        .slide-2 .gospel {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            color: #FFFFFF;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 3 - Oração de Completas */
+        .slide-3 {
+            background: #0A0E17;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-3 .compline-prayer {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        /* Slide 4 - Reflexão */
+        .slide-4 {
+            background: #111827;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .stars-subtle {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(1px 1px at 30px 50px, #3B82F6, transparent),
+                        radial-gradient(1px 1px at 80px 100px, #3B82F6, transparent),
+                        radial-gradient(1px 1px at 150px 150px, #3B82F6, transparent);
+            opacity: 0.4;
+        }
+
+        .slide-4 .reflection {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.6;
+            z-index: 1;
+        }
+
+        /* Slide 5 - Salmo */
+        .slide-5 {
+            background: #0A0E17;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-5 .psalm {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #D4AF37;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 6 - Bênção */
+        .slide-6 {
+            background: #0D1B2A;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-6 .blessing {
+            font-family: 'Playfair Display', serif;
+            font-size: 14px;
+            color: #C0C0C0;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 30px;
+        }
+
+        .slide-6 .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #3B82F6;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #3B82F6;
+            font-size: 12px;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>🌙 Template Reel Noite (1080x1920)</h2>
+        <div class="container">
+            <!-- Slide 1 -->
+            <div class="slide slide-1">
+                <span class="slide-label">Slide 1 - Capa (5s)</span>
+                <div class="moon-stars">
+                    <div class="moon"></div>
+                    <div class="stars-night"></div>
+                </div>
+                <h1>Hora de descansar,<br>filho de Deus</h1>
+                <p class="subtitle">Oração de Completas</p>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide slide-2">
+                <span class="slide-label">Slide 2 - Evangelho (10s)</span>
+                <div class="heart-icon"></div>
+                <p class="gospel">"Jesus o ameaçou, dizendo:<br>Cala-te, e sai dele!"</p>
+                <p style="color: #3B82F6; margin-top: 20px; font-size: 12px;">Lucas 4,35</p>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide slide-3">
+                <span class="slide-label">Slide 3 - Oração (15s)</span>
+                <p class="compline-prayer">Vindeste, ó Espírito Santo,<br>encher os vossos apóstolos.<br><br>Ench também os nossos corações<br>de paz esta noite.</p>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide slide-4">
+                <span class="slide-label">Slide 4 - Reflexão (15s)</span>
+                <div class="stars-subtle"></div>
+                <p class="reflection">Assim como Jesus calou o demônio<br>com autoridade, Ele também pode<br>acalmar os "demônios" da sua vida:<br><br>ansiedade, medo, inquietação.<br><br>Entregue ao Senhor o que<br>perturba seu coração esta noite.</p>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide slide-5">
+                <span class="slide-label">Slide 5 - Salmo (10s)</span>
+                <p class="psalm">"Em paz me deitarei<br>e adormecerei,<br><br>porque só vós, Senhor,<br>me fazestes habitar<br>em segurança."</p>
+                <p style="color: #3B82F6; margin-top: 20px; font-size: 12px;">Salmo 4,9</p>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide slide-6">
+                <span class="slide-label">Slide 6 - Bênção (5s)</span>
+                <p class="blessing">A bênção de Deus todo-poderoso<br>desça sobre vós esta noite.<br><br>Amém.<br><br>Boa noite.</p>
+                <div class="logo-placeholder">
+                    <span>LOGO</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

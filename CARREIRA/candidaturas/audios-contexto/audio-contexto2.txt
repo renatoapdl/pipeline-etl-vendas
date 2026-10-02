@@ -1,0 +1,38 @@
+# Transcricao — audio-contexto2
+
+- Arquivo: audio-contexto2.ogg
+- Duracao: 76.2s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 14
+- Transcrito em: 25/09/2026 17:40
+
+---
+
+Perna, tu vai... não sei se em casa, né?
+
+Tu tem como fazer alguma coisa, senão eu tento, talvez, segunda-feira, te mandar uma base pequena mesmo,
+
+um CSV ou talvez um parquet, com alguns dados para tu fazer esse tipo de pipeline que eu falei, né?
+
+Aí a minha ideia realmente é o primeiro, né? Tu faz bem simples, mas que já use PySpark.
+
+Você pode levar esse arquivo lá para o Databricks, por exemplo,
+
+que eu soube ele lá na plataforma e consegue trabalhar com ele lá dentro, entendeu?
+
+Aí depois você só exporta o código e tira ali algum sprint, alguma evidência do que você fez e posta o código no GitHub.
+
+Aí nem precisa, a princípio, esse primeiro ser orquestrado.
+
+Aí é a segunda parte que eu ia te falar, para orquestrar.
+
+aí é usando Airflow
+
+o Airflow é um pouquinho chato de usar no Windows
+
+mas no Windows, geralmente, o pessoal faz via WSL
+
+ou então com Docker, com container
+
+e talvez fosse a segunda parte aí

@@ -1,0 +1,16 @@
+# Transcricao — audio-contexto5
+
+- Arquivo: audio-contexto5.ogg
+- Duracao: 26.4s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 3
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Aí, extrair esse cara, seja de um arquivo, de um API, e salvar ele em um formato mais performático, tabular,
+
+que aí entraria o parquet, ou delta, que aí fica o seu critério, usando Spark, isso, extrair,
+
+pode ser com Python puro, e depois, para trabalhar com salvamento, poderia ser com o PySpark.

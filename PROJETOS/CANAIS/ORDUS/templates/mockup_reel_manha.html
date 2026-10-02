@@ -1,0 +1,290 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Reel Manhã - Canal Dark Devocionais</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 270px;
+            height: 480px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .slide-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        /* Slide 1 - Capa */
+        .slide-1 {
+            background: linear-gradient(135deg, #0D1B2A 0%, #1B2838 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .stars {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(2px 2px at 20px 30px, #D4AF37, transparent),
+                        radial-gradient(2px 2px at 40px 70px, #D4AF37, transparent),
+                        radial-gradient(2px 2px at 50px 160px, #D4AF37, transparent),
+                        radial-gradient(2px 2px at 90px 40px, #D4AF37, transparent),
+                        radial-gradient(2px 2px at 130px 80px, #D4AF37, transparent),
+                        radial-gradient(2px 2px at 160px 120px, #D4AF37, transparent);
+            opacity: 0.5;
+        }
+
+        .slide-1 h1 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+            z-index: 1;
+        }
+
+        .slide-1 .subtitle {
+            font-size: 14px;
+            color: #D4AF37;
+            z-index: 1;
+        }
+
+        /* Slide 2 - Versículo */
+        .slide-2 {
+            background: #0D1B2A;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .sun-icon {
+            width: 60px;
+            height: 60px;
+            background: #D4AF37;
+            border-radius: 50%;
+            margin-bottom: 30px;
+            box-shadow: 0 0 30px rgba(212, 175, 55, 0.5);
+        }
+
+        .slide-2 .verse {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #D4AF37;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 3 - Oração */
+        .slide-3 {
+            background: #1B2838;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-3 .prayer {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.8;
+            font-weight: 300;
+        }
+
+        /* Slide 4 - Reflexão */
+        .slide-4 {
+            background: #0D1B2A;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .cross-icon {
+            width: 40px;
+            height: 40px;
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .cross-icon::before,
+        .cross-icon::after {
+            content: '';
+            position: absolute;
+            background: #D4AF37;
+        }
+
+        .cross-icon::before {
+            width: 4px;
+            height: 40px;
+            left: 18px;
+            top: 0;
+        }
+
+        .cross-icon::after {
+            width: 30px;
+            height: 4px;
+            left: 5px;
+            top: 10px;
+        }
+
+        .slide-4 .reflection {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.6;
+        }
+
+        /* Slide 5 - Oração Conclusiva */
+        .slide-5 {
+            background: #FFFFFF;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-5 .concluding-prayer {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #0D1B2A;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 6 - CTA */
+        .slide-6 {
+            background: #0D1B2A;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 40px 30px;
+        }
+
+        .slide-6 .cta {
+            font-size: 14px;
+            color: #D4AF37;
+            margin-bottom: 20px;
+        }
+
+        .slide-6 .logo-placeholder {
+            width: 80px;
+            height: 80px;
+            border: 2px solid #D4AF37;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #D4AF37;
+            font-size: 12px;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>🌅 Template Reel Manhã (1080x1920)</h2>
+        <div class="container">
+            <!-- Slide 1 -->
+            <div class="slide slide-1">
+                <span class="slide-label">Slide 1 - Capa (5s)</span>
+                <div class="stars"></div>
+                <h1>Bom dia,<br>filho de Deus</h1>
+                <p class="subtitle">Oração do Despertar</p>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide slide-2">
+                <span class="slide-label">Slide 2 - Versículo (10s)</span>
+                <div class="sun-icon"></div>
+                <p class="verse">"Misericórdia e piedade é o Senhor;<br>ele é amor, é paciência,<br>é compaixão."</p>
+                <p style="color: #415A77; margin-top: 20px; font-size: 12px;">Salmo 144,8-9</p>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide slide-3">
+                <span class="slide-label">Slide 3 - Oração (15s)</span>
+                <p class="prayer">Ó Senhor, abri os nossos lábios.<br><br>E a nossa boca anunciará<br>os vossos louvores.<br><br>Salmo cento e quarenta e quatro.</p>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide slide-4">
+                <span class="slide-label">Slide 4 - Reflexão (15s)</span>
+                <div class="cross-icon"></div>
+                <p class="reflection">O Senhor é fiel em todas as suas palavras.<br><br>Hoje, ao começar este dia,<br>lembre-se: Deus sustenta<br>todos os que vacilam<br>e levanta todos os que tombaram.</p>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide slide-5">
+                <span class="slide-label">Slide 5 - Oração (10s)</span>
+                <p class="concluding-prayer">Deus onipotente,<br>fonte de todo dom perfeito,<br>semeai em nossos corações<br>o amor ao vosso nome.<br><br>Por Jesus Cristo,<br>nosso Senhor. Amém.</p>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide slide-6">
+                <span class="slide-label">Slide 6 - CTA (5s)</span>
+                <p class="cta">Salve e compartilhe<br>com quem precisa de paz</p>
+                <div class="logo-placeholder">
+                    <span>LOGO</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

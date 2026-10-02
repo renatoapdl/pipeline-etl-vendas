@@ -1,0 +1,20 @@
+# Transcricao — audio-contexto3
+
+- Arquivo: audio-contexto3.ogg
+- Duracao: 38.3s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 5
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Mas assim, a parte do Airflow, a orquestração, talvez nem precisasse estar lá no teu computador
+
+para ver o negócio rodando, podia ser mais a lógica mesmo, para construir a DAG, do Airflow,
+
+as Tesques ali, e pedir para ir até gerar uma imagem de como ficaria aquele pipeline no Airflow,
+
+O outro tem uma evidência do pipeline montado visualmente, que o Airflow é bom que é uma
+
+ferramenta muito visual, que você tira um print do pipeline da DAG.

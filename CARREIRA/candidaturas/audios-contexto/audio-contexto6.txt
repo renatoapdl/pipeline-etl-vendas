@@ -1,0 +1,28 @@
+# Transcricao — audio-contexto6
+
+- Arquivo: audio-contexto6.ogg
+- Duracao: 60.3s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 9
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Depois que você salvar esse dado bruto, com um formato mais performático, que a galera já usa no
+
+Parque Pilar Invidados, tipo o Parquet, Delta, Ávore, qualquer um desses formatos assim, mais
+
+performático, seria fazer alguma transformação simples no dado. E aí pode ser criar um campo
+
+com base em outro campo, sei lá, se for informação de pessoa, se tiver o sexo feminino, masculino,
+
+um indicador ali é f para feminino em cima do campo que vem a a extrema de
+
+toda né feminina pode criar um o identificador né dt sex por exemplo
+
+as e dt né underline sex aí tu pegaria a string fatiava ela pegava só o primeiro
+
+ali né no caso do f masculino né pegar só o m é isso é uma é uma criação
+
+de campo com uma regra de negócios simples em cima de outro campo.

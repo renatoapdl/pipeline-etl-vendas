@@ -1,0 +1,37 @@
+
+=== TEMPLATE CARROSSEL (7 slides) ===
+
+Slide 1 (Capa):
+- Fundo: Roxo/azul + ícone de pomba
+- Texto: "Santo do Dia: [NOME]"
+- Data: [DATA]
+
+Slide 2:
+- Fundo: Ícone do santo
+- Texto: [BREVE BIOGRAFIA]
+
+Slide 3:
+- Fundo: Livro aberto
+- Texto: [LEITURA DO DIA]
+
+Slide 4:
+- Fundo: Salmo
+- Texto: [SALMO RESPONSORIAL]
+
+Slide 5:
+- Fundo: Mente/lâmpada
+- Texto: [REFLEXÃO - 3 PONTOS]
+
+Slide 6:
+- Fundo: Mãos orando
+- Texto: [ORAÇÃO INTERCESSORA]
+
+Slide 7:
+- Fundo: Logo + versículo
+- Texto: [VERSÍCULO FINAL]
+- CTA: "Compartilhe"
+
+=== FONTES ===
+- Títulos: Serifada, branca
+- Corpo: Sans-serif, escura
+- Versículos: Itálica, dourada

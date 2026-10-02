@@ -1,0 +1,37 @@
+
+=== TEMPLATE REEL NOITE (60 segundos) ===
+
+Slide 1 (5s):
+- Fundo: Escuro com lua e estrelas
+- Texto: "Hora de descansar, filho(a) de Deus"
+- Fonte: Serifada, prateada
+
+Slide 2 (10s):
+- Fundo: Jesús curando
+- Texto: [EVANGELHO DO DIA]
+- Fonte: Serifada, branca
+
+Slide 3 (15s):
+- Fundo: Noturno, suave
+- Texto: [ORAÇÃO DE COMPLETAS]
+- Fonte: Serifada, branca
+
+Slide 4 (15s):
+- Fundo: Coração em paz
+- Texto: [REFLEXÃO]
+- Fonte: Sans-serif, branca
+
+Slide 5 (10s):
+- Fundo: Azul escuro + estrelas
+- Texto: [SALMO DA NOITE]
+- Fonte: Serifada, dourada
+
+Slide 6 (5s):
+- Fundo: Logo + bênção
+- Texto: "A bênção de Deus..."
+- Fonte: Serifada, branca
+
+=== MÚSICA DE FUNDO ===
+- Calmante, noturna
+- Volume baixo (20-30%)
+- Estilo: Cordas suaves

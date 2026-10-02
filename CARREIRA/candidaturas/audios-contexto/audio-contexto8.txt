@@ -1,0 +1,26 @@
+# Transcricao — audio-contexto8
+
+- Arquivo: audio-contexto8.ogg
+- Duracao: 50.1s
+- Modelo: small (int8/CPU)
+- Idioma detectado: pt (prob 1.00)
+- Segmentos: 8
+- Transcrito em: 25/09/2026 17:41
+
+---
+
+Aí tu já salvaria no final da transformação esse dado um pouco mais trabalhado.
+
+Ou tu pode fazer essa parte do tratamento após a transformação,
+
+na hora de salvar um dado mais refinado ainda.
+
+Tu salvou o dado bruto, transformou, foi criação de campos ali, alguma coisa,
+
+E depois tu vai fazer uma limpeza que aí tu já pode trabalhar na arquitetura medalhão, né?
+
+O que o pessoal chama, que é as camadas gold, bronze, prata e ouro, né?
+
+Algum coisa desse tipo, que seria a ideia de o dado bruto, o dado mais trabalhado e o dado já...
+
+versão final, né, para o usuário ali para um biaí consumir.

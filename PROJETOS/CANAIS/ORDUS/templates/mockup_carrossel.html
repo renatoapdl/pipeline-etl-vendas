@@ -1,0 +1,389 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Template Carrossel - Canal Dark Devocionais</title>
+    <link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@400;700&family=Montserrat:wght@300;400;700&display=swap" rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            background-color: #1a1a2e;
+            font-family: 'Montserrat', sans-serif;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+
+        .container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 20px;
+            justify-content: center;
+        }
+
+        .slide {
+            width: 300px;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5);
+            position: relative;
+        }
+
+        .slide-label {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background: rgba(0, 0, 0, 0.7);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 5px;
+            font-size: 12px;
+            z-index: 10;
+        }
+
+        /* Slide 1 - Capa */
+        .slide-1 {
+            background: linear-gradient(135deg, #1E1B4B 0%, #312E81 100%);
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .dove-icon {
+            width: 60px;
+            height: 60px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .dove-icon::before {
+            content: '🕊️';
+            font-size: 50px;
+            position: absolute;
+            top: 0;
+            left: 5px;
+        }
+
+        .slide-1 .label {
+            font-size: 14px;
+            color: #F59E0B;
+            margin-bottom: 10px;
+        }
+
+        .slide-1 h2 {
+            font-family: 'Playfair Display', serif;
+            font-size: 28px;
+            color: #FFFFFF;
+            margin-bottom: 10px;
+        }
+
+        .slide-1 .saint-name {
+            font-size: 18px;
+            color: #F59E0B;
+        }
+
+        .slide-1 .date {
+            font-size: 12px;
+            color: #C0C0C0;
+            margin-top: 10px;
+        }
+
+        /* Slide 2 - Biografia */
+        .slide-2 {
+            background: #312E81;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .saint-icon {
+            width: 50px;
+            height: 50px;
+            background: #F59E0B;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+        }
+
+        .slide-2 .biography {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.6;
+        }
+
+        /* Slide 3 - Leitura */
+        .slide-3 {
+            background: #1E1B4B;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .book-icon {
+            width: 50px;
+            height: 40px;
+            background: #F59E0B;
+            border-radius: 5px;
+            margin-bottom: 20px;
+            position: relative;
+        }
+
+        .book-icon::before {
+            content: '';
+            position: absolute;
+            top: 5px;
+            left: 5px;
+            width: 40px;
+            height: 30px;
+            background: #1E1B4B;
+            border-radius: 3px;
+        }
+
+        .slide-3 .reading-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #F59E0B;
+            margin-bottom: 15px;
+        }
+
+        .slide-3 .reading {
+            font-size: 14px;
+            color: #FFFFFF;
+            line-height: 1.6;
+        }
+
+        /* Slide 4 - Salmo */
+        .slide-4 {
+            background: #312E81;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .music-icon {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .slide-4 .psalm-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #F59E0B;
+            margin-bottom: 15px;
+        }
+
+        .slide-4 .psalm {
+            font-size: 14px;
+            color: #FFFFFF;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 5 - Reflexão */
+        .slide-5 {
+            background: #1E1B4B;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .light-icon {
+            width: 40px;
+            height: 40px;
+            background: #F59E0B;
+            border-radius: 50%;
+            margin-bottom: 20px;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.5);
+        }
+
+        .slide-5 .reflection-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #F59E0B;
+            margin-bottom: 15px;
+        }
+
+        .slide-5 .points {
+            text-align: left;
+            font-size: 12px;
+            color: #FFFFFF;
+            line-height: 1.8;
+        }
+
+        .slide-5 .points li {
+            margin-bottom: 10px;
+        }
+
+        /* Slide 6 - Oração */
+        .slide-6 {
+            background: #312E81;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .praying-hands {
+            font-size: 40px;
+            margin-bottom: 20px;
+        }
+
+        .slide-6 .prayer-label {
+            font-family: 'Playfair Display', serif;
+            font-size: 18px;
+            color: #F59E0B;
+            margin-bottom: 15px;
+        }
+
+        .slide-6 .prayer {
+            font-size: 14px;
+            color: #FFFFFF;
+            font-style: italic;
+            line-height: 1.6;
+        }
+
+        /* Slide 7 - Versículo Final */
+        .slide-7 {
+            background: #1E1B4B;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 30px;
+        }
+
+        .slide-7 .final-verse {
+            font-family: 'Playfair Display', serif;
+            font-size: 16px;
+            color: #F59E0B;
+            font-style: italic;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .slide-7 .cta {
+            font-size: 12px;
+            color: #FFFFFF;
+            margin-bottom: 20px;
+        }
+
+        .slide-7 .logo-placeholder {
+            width: 60px;
+            height: 60px;
+            border: 2px solid #F59E0B;
+            border-radius: 50%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            color: #F59E0B;
+            font-size: 10px;
+        }
+
+        h2 {
+            color: white;
+            text-align: center;
+            margin-bottom: 30px;
+            font-family: 'Playfair Display', serif;
+        }
+    </style>
+</head>
+<body>
+    <div>
+        <h2>📸 Template Carrossel (1080x1080)</h2>
+        <div class="container">
+            <!-- Slide 1 -->
+            <div class="slide slide-1">
+                <span class="slide-label">Slide 1 - Capa</span>
+                <div class="dove-icon"></div>
+                <p class="label">Santo do Dia</p>
+                <h2>Nossa Senhora<br>da Vitória</h2>
+                <p class="saint-name">1 de Setembro</p>
+                <p class="date">22ª Semana do Tempo Comum</p>
+            </div>
+
+            <!-- Slide 2 -->
+            <div class="slide slide-2">
+                <span class="slide-label">Slide 2 - Biografia</span>
+                <div class="saint-icon">✝️</div>
+                <p class="biography">Nossa Senhora da Vitória é celebrada pela Igreja como símbolo de esperança e proteção divina. Esta festividade lembra que, através da intercessão de Maria, alcançamos as vitórias espirituais em nossa jornada de fé.</p>
+            </div>
+
+            <!-- Slide 3 -->
+            <div class="slide slide-3">
+                <span class="slide-label">Slide 3 - Leitura</span>
+                <div class="book-icon"></div>
+                <p class="reading-label">Leitura do Dia</p>
+                <p class="reading">Primeira Carta de São Paulo aos Coríntios capítulo 2, versículos 10 a 16</p>
+            </div>
+
+            <!-- Slide 4 -->
+            <div class="slide slide-4">
+                <span class="slide-label">Slide 4 - Salmo</span>
+                <div class="music-icon">🎵</div>
+                <p class="psalm-label">Salmo Responsorial</p>
+                <p class="psalm">"Justo é o Senhor em seus caminhos"<br><br>Misericórdia e piedade é o Senhor;<br>ele é amor, é paciência, é compaixão.</p>
+            </div>
+
+            <!-- Slide 5 -->
+            <div class="slide slide-5">
+                <span class="slide-label">Slide 5 - Reflexão</span>
+                <div class="light-icon"></div>
+                <p class="reflection-label">Reflexão</p>
+                <ul class="points">
+                    <li>O Espírito de Deus penetra tudo</li>
+                    <li>Como os santos foram guiados, também nós somos</li>
+                    <li>O pensamento de Cristo está disponível a todos</li>
+                </ul>
+            </div>
+
+            <!-- Slide 6 -->
+            <div class="slide slide-6">
+                <span class="slide-label">Slide 6 - Oração</span>
+                <div class="praying-hands">🙏</div>
+                <p class="prayer-label">Oração</p>
+                <p class="prayer">Senhor, concedei-nos o vosso Espírito para compreendermos vossos caminhos. Amém.</p>
+            </div>
+
+            <!-- Slide 7 -->
+            <div class="slide slide-7">
+                <span class="slide-label">Slide 7 - Versículo Final</span>
+                <p class="final-verse">"Nós, porém, temos<br>o pensamento de Cristo"</p>
+                <p class="cta">Compartilhe com quem precisa</p>
+                <div class="logo-placeholder">
+                    <span>LOGO</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>

@@ -1,0 +1,108 @@
+LinkedIn — perfil atual (espelho do export Renato_Abreu_Profile.pdf, 30/09/2026)
+
+Contato
++55 (85) 98677-9537 (Mobile)
+renatoaopedaletra@gmail.com
+www.linkedin.com/in/renatoabreuengenharia (LinkedIn)
+github.com/renatoapdl (Portfolio)
+renatoapdl.github.io/renato/
+
+Cabeçalho
+Engenheiro de Dados | Python, PySpark, SQL | Mackenzie/NASA
+Eusébio, Ceará, Brasil
+
+Secao de competencias
+Top 5 selecionadas (campo "Top Skills" do cabecalho):
+Python
+PySpark
+SQL
+Azure Databricks
+Apache Spark
+
+Nota: o export em PDF lista apenas uma amostra de skills (Apache Spark, Apache Parquet, Pytest) e nao reflete a selecao de Top 5. Demais skills para a lista geral: Apache Parquet, ETL, Data Pipelines, Data Quality, Data Validation, Data Cleansing, Spark SQL, Grafana, Pandas, APIs REST, Git, GitHub, JSON, pytest.
+
+Idiomas
+Português (Nativo)
+Inglês (Professional Working)
+
+Certificações
+Técnico em Eletrotécnica
+Cybersecurity and Privacy Awareness Training
+
+Resumo (About, texto atual)
+Há 14 anos garanto a confiabilidade e a disponibilidade de sistemas críticos do
+Rádio Observatório Espacial do Nordeste (Mackenzie/NASA): monitoramento de
+telemetria, dashboards de performance (Dashboards, Grafana, MTTR, SLA), automação
+com Python e relatórios técnicos em inglês para a rede global IVS-NASA.
+
+Em transição ativa para Engenharia de Dados, aplico a mesma mentalidade de
+confiabilidade ao ciclo de dados: Construo pipelines ETL com Python e PySpark,
+modelo dados com SQL e transformo fontes reais em informação estruturada.
+Qualidade de dados e monitoramento, conceitos que vivi na operação de sistemas de
+missão crítica, são o meu foco em dados.
+
+Busco oportunidade de entrada na área de Engenharia de Dados.
+
+Experiência
+Instituto Presbiteriano Mackenzie
+Técnico de Operações e Manutenção - Gestão de Ativos
+julho de 2012 - Present (14 anos 3 meses)
+Eusebio, CE
+
+Gestão de Ativos: Responsável pela confiabilidade e disponibilidade operacional de
+sistemas de radioastronomia vinculados à rede global IVS-NASA.
+Liderança e Capex/Opex: Supervisão de equipes de campo e terceirizados; gestão de
+estoque crítico e planejamento de compras técnicas para manutenção.
+Monitoramento e Performance: Implementação de dashboards para acompanhamento de
+SLAs e redução de MTTR (tempo médio de reparo) via sistemas supervisórios remotos.
+Interface Internacional: Redação de relatórios técnicos de performance e incidentes
+em inglês, garantindo o alinhamento com os padrões de qualidade da NASA.
+Manutenção de Precisão: Supervisão de sistemas eletromecânicos, telemetria, motores
+de alta precisão e infraestrutura de rede (TI/Telecom).
+
+Instituto Presbiteriano Mackenzie
+Técnico Eletro-eletrônico
+junho de 2012 - Present (14 anos 4 meses)
+Eusébio
+
+Operação e manutenção do Rádio Observatório Espacial do Nordeste:
+- Manutenção em: Sistemas eletrônicos (telemetria, receptores RF, sensores de ângulo
+  (encoder), circuitos micro processados, circuitos impressos);
+- Motores elétricos DC;
+- Motores e bombas AC;
+- Módulos de potência de motores DC;
+- Grupo Motor-gerador; SEP;
+- Redutores, caixas de transferência, motores, freios, correias, limitadores de
+  torque, equipamentos de lubrificação;
+- Computadores (Hardware e software).
+- Monitoramento, operação e supervisão de rádio telescópio por sistema supervisório
+  remoto;
+- Manutenção elétrica predial: Montagem e manutenção de eletro calhas, fiação,
+  iluminação e quadros de distribuição.
+- Manutenção em network: Supervisão e suporte de software; Estruturação de Rede de
+  computadores (Cabeamento estruturado padrão CAT 5 e CAT 6, patch panel e rack).
+- Desenho técnico.
+- Compras de materiais para manutenção e controle de estoque.
+- Contratação e supervisão de prestadores de serviço.
+- Planejamento e gestão de manutenção.
+- Envio e atualizações de relatórios de serviço, manutenção e operação por e-mail
+  (em Inglês) para os parceiros da rede IVS-NASA.
+- Entre outras.
+
+Rádio Observatório Espacial do Nordeste
+Técnico de Operação e Manutenção
+julho de 2012 - Present (14 anos 3 meses)
+Eusébio
+Técnico de operações bilíngue;
+
+Haco Etiquetas do NE
+Técnico Eletrotécnico
+janeiro de 2011 - maio de 2012 (1 ano 5 meses)
+
+Formação acadêmica
+UNINTER Centro Universitário Internacional
+Bacharelado, Engenharia Elétrica e Eletrônica · (março de 2017 - dezembro de 2022)
+UNINTER Centro Universitário Internacional
+Bacharelado em Engenharia Elétrica · (2017 - 2022)
+CEPEP
+Técnico, Eletrotécnica · (2010 - 2011)
