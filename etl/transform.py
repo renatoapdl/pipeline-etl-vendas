@@ -5,7 +5,7 @@ from pyspark.sql.functions import (
     to_date,
     trim,
     regexp_replace,
-    replace,
+    lower,
 )
 
 
@@ -26,3 +26,12 @@ def padronizar_datas(df: DataFrame) -> DataFrame:
 def converter_valores(df: DataFrame) -> DataFrame:
     limpo = regexp_replace(trim(col("valor_unitario")), r"[^0-9,]", "")
     return df.withColumn("valor_unitario", regexp_replace(limpo, ",", ".").cast("double"))
+
+
+def normalizar_texto(df: DataFrame) -> DataFrame:
+    return (
+        df.withColumn("produto", lower(trim(col("produto"))))
+        .withColumn("categoria", lower(trim(col("categoria"))))
+        .withColumn("canal", lower(trim(col("canal"))))
+        .withColumn("situacao", lower(trim(col("situacao"))))
+    )
