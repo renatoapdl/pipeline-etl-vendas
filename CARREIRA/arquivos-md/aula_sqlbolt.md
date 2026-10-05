@@ -207,9 +207,9 @@ Esse é o material do post de 08/10, sem inventar nada.
 | Passo | Data | Status | Observação |
 |---|---|---|---|
 | 0 | 01/10/2026 | concluído | Aulas 1 a 5 concluídas (SELECT, constraints pt 1 e pt 2, filtering/sorting, revisão). Sem consultar e sem travar. Calibração: o gargalo não é sintaxe de SELECT/WHERE, é SQL relacional. **Correção:** eu tinha dito que `= NULL` aparecia na aula 3. Não aparece. NULL é a aula 8 ("A short note on NULLs"); a aula 3 é de operadores de texto (`LIKE`, `IN`, `NOT IN`, `%`, `_`). Perguntar sobre NULL no passo 3, não no passo 0 |
-| 1 | | pendente | JOIN (aula 6) — primeira vez que ele vai usar o dado dele, não a tabela de movies do SQLBolt |
-| 2 | | pendente | OUTER JOIN (aula 7) |
-| 3 | | pendente | NULL (aula 8) |
+| 1 | 05/10/2026 | concluído | JOIN (aula 6) — primeira vez que ele vai usar o dado dele, não a tabela de movies do SQLBolt |
+| 2 | 05/10/2026 | concluído | OUTER JOIN (aula 7) |
+| 3 | 05/10/2026 | concluído | NULL (aula 8) |
 | 4 | | pendente | agregados, GROUP BY, HAVING (aulas 10 e 11) |
 | 5 | | pendente | ordem de execução (aula 12) |
 

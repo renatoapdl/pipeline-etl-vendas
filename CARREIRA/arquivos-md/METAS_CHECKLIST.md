@@ -87,8 +87,9 @@
 - [ ] Opcional: IBM Data Engineering (Coursera)
 
 ### 4.1b Preparação até 02/11 (5 semanas · 01/10 → 02/11)
-- [ ] Reescrever `etl/transform.py` à mão do zero (as 6 regras) — item de maior retorno do plano
-- [ ] SQL: SQLBolt → SQLZoo → window functions (semana 2)
+- [x] Reescrever `etl/transform.py` à mão do zero (7 regras R1–R6 + D1) — concluído 05/10/2026
+- [x] SQL: SQLBolt aulas 6–8 concluídas em 05/10/2026
+- [ ] SQL: SQLBolt → SQLZoo → window functions (semana 2, focar aulas 10–12)
 - [ ] Medallion bronze/prata/ouro no case (semana 3)
 - [ ] Quality gate que reprova a publicação + 2 testes (semana 4)
 - [ ] Airflow só o conceito (DAG impressa) e K8s no Killercoda 1 tarde (semana 5)
@@ -96,8 +97,9 @@
 
 ### 4.2 SQL (70% do dia a dia de dados)
 - [x] SELECT, WHERE, ORDER BY, LIMIT
-- [ ] JOINs (INNER, LEFT, RIGHT, FULL) — semana 1
-- [ ] GROUP BY, HAVING, funções de agregação — semana 1
+- [x] JOINs (INNER, LEFT, RIGHT, FULL) — concluído 05/10/2026 (SQLBolt 6–7)
+- [x] NULL — concluído 05/10/2026 (SQLBolt 8)
+- [ ] GROUP BY, HAVING, funções de agregação — semana 1 (SQLBolt 10–11)
 - [ ] Subqueries e CTEs — semana 2
 - [ ] Window functions (ROW_NUMBER, RANK, LAG/LEAD, SUM OVER) — semana 2, prioridade máxima
 - [ ] Modelagem simples (criação de tabelas, índices, views)
