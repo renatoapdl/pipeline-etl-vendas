@@ -84,7 +84,7 @@ Nunca pagar preço cheio da Udemy (preço real = promoção). Detalhar preços/l
 
 | Semana | Foco | Entrega |
 |---|---|---|
-| 1 (01 a 05/10) | SQL base: SQLBolt (aulas 6, 7, 8 concluídas em 05/10) → SQLZoo → (10–12 pendentes) | pasta `sql/` no case, cada query com a pergunta de negócio que responde |
+| 1 (01 a 05/10) | SQL base: SQLBolt (6–8 e 10–11 concluídas em 05/10) → SQLZoo → (aula 12 pendente) | pasta `sql/` no case, cada query com a pergunta de negócio que responde |
 | 2 (05 a 11/10) | Window function no CSV do case: `row_number`, `lag`, `sum over`, `rank` + esquema estrela (2 dimensões, 1 fato) | 4 queries comentadas |
 | 3 (12 a 18/10) | Case V2: medallion (bronze/prata/ouro) | README atualizado + print novo |
 | 4 (19 a 25/10) | Case V2: quality gate que **reprova** a publicação + 2 testes | commit + resposta para "como você garante qualidade em produção?" |

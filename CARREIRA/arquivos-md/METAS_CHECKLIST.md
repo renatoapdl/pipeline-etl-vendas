@@ -99,7 +99,7 @@
 - [x] SELECT, WHERE, ORDER BY, LIMIT
 - [x] JOINs (INNER, LEFT, RIGHT, FULL) — concluído 05/10/2026 (SQLBolt 6–7)
 - [x] NULL — concluído 05/10/2026 (SQLBolt 8)
-- [ ] GROUP BY, HAVING, funções de agregação — semana 1 (SQLBolt 10–11)
+- [x] GROUP BY, HAVING, funções de agregação — concluído 05/10/2026 (SQLBolt 10–11)
 - [ ] Subqueries e CTEs — semana 2
 - [ ] Window functions (ROW_NUMBER, RANK, LAG/LEAD, SUM OVER) — semana 2, prioridade máxima
 - [ ] Modelagem simples (criação de tabelas, índices, views)

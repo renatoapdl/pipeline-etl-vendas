@@ -210,7 +210,7 @@ Esse é o material do post de 08/10, sem inventar nada.
 | 1 | 05/10/2026 | concluído | JOIN (aula 6) — primeira vez que ele vai usar o dado dele, não a tabela de movies do SQLBolt |
 | 2 | 05/10/2026 | concluído | OUTER JOIN (aula 7) |
 | 3 | 05/10/2026 | concluído | NULL (aula 8) |
-| 4 | | pendente | agregados, GROUP BY, HAVING (aulas 10 e 11) |
+| 4 | 05/10/2026 | concluído | agregados, GROUP BY, HAVING (aulas 10 e 11) |
 | 5 | | pendente | ordem de execução (aula 12) |
 
 **Progresso real:** a aula 6 (JOIN) fecha o item mais caro da lista do seu checklist 4.2. A aula 11 (GROUP BY/HAVING) fecha o segundo. window function e CTE ficam para a semana 2, escritos por nós dois.
