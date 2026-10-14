@@ -101,7 +101,7 @@ Resultado: 27 linhas entram, 23 saem. Nenhum `id_venda` repetido, nenhuma data n
    no PATH, e na minha máquina era um Python 3.14 sem o PySpark. Resolvido apontando `PYSPARK_PYTHON`
    para o mesmo interpretador do driver.
 
-## Decisões que eu tomei, e por quê
+## Decisões que eu tomei, e o porquê
 
 - Schema declarado com tudo como `string`. Se o Spark inferisse, `valor_unitario` viraria `string` numa linha e `double` na outra. Lendo tudo como texto, a conversão fica num só lugar.
 - Nem todo nulo é preenchido. `quantidade` vazia vira 1. Preço vazio continua nulo, porque inventar um valor distorceria o faturamento. O log avisa, e a decisão fica com quem lê.
