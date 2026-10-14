@@ -1,0 +1,28 @@
+id_venda,id_cliente,data_venda,produto,categoria,quantidade,valor_unitario,canal,situacao
+VEN-0001,CLI-1001,2026-01-05,Notebook,Informática,1,"3500,00",Web,Aprovado
+VEN-0002,CLI-1002,2026-01-06,  Notebook  ,Informática,2,"3500,00",Web,Aprovado
+VEN-0003,CLI-1003,2026-01-07,Mouse,Periféricos,3,"R$ 1.234,56",Loja,Aprovado
+VEN-0004,CLI-1004,2026-01-08,Teclado,Periféricos,1,"189,90",Web,Aprovado
+VEN-0005,CLI-1005,2026-01-09,CABO USB,Periféricos,4,"45,00",Web,aprovado
+VEN-0006,CLI-1006,2026-01-10,Monitor,Informática,,"1899,00",Loja,Aprovado
+VEN-0007,CLI-1007,2026-01-12,Headset,Áudio,2,"1.234,56",Web,Aprovado
+VEN-0008,CLI-1008,2026-01-13,Webcam,Áudio,1,"349,00",Loja,
+VEN-0009,CLI-1009,17/02/2026,Impressora,Informática,1,"1299,00",Web,Aprovado
+VEN-0010,CLI-1010,2026-02-01,Hub USB,Periféricos,3,"99,00",  Web  ,Aprovado
+VEN-0011,CLI-1011,2026-02-02,SSD 1TB,Armazenamento,2,"749,00",Web,Aprovado
+VEN-0012,CLI-1012,2026-02-03,Memória RAM,Informática,4,"89,90",Loja,Aprovado
+VEN-0013,CLI-1013,2026-02-04,Placa de vídeo,Informática,1,"4200,00",Web,CANCELADO
+VEN-0014,CLI-1014,2026-02-05,cabo usb,Periféricos,5,"45,00",Web,Aprovado
+VEN-0015,CLI-1015,2026-02-06,Caixa de som,Áudio,1,"599,00",Loja,Pendente
+VEN-0016,CLI-1016,2026-02-07,Mouse,Periféricos,10,"79,90",Web,Aprovado
+VEN-0017,CLI-1017,2026-02-08,Notebook,Informática,1,"3899,00",Web,Aprovado
+VEN-0018,CLI-1018,2026-02-09,Teclado,Periféricos,2,,Loja,Aprovado
+VEN-0019,CLI-1019,2026-02-10,Monitor,Informática,1,"1750,00",Web,Aprovado
+VEN-0020,CLI-1020,2026-02-11,Headset,Áudio,3,"299,00",Loja,
+VEN-0021,CLI-1021,2026-02-12,SSD 1TB,Armazenamento,1,"799,00",Web,Aprovado
+VEN-0022,CLI-1022,2026-02-13,Impressora,Informática,1,"1150,00",Loja,Cancelado
+,CLI-1023,2026-02-14,Webcam,Áudio,1,"320,00",Web,Aprovado
+VEN-0024,CLI-1024,,Monitor,Informática,1,"1899,00",Loja,Aprovado
+VEN-0025,CLI-1025,2026-02-15,Hub USB,Periféricos,2,"95,00",Web,Aprovado
+VEN-0004,CLI-1004,2026-01-20,Teclado,Periféricos,1,"179,90",Web,Aprovado
+VEN-0011,CLI-1011,2026-01-25,SSD 1TB,Armazenamento,2,"699,00",Web,Aprovado
