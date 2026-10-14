@@ -1,4 +1,4 @@
-# ETL de vendas: CSV → Parquet → Parquet tratado
+﻿# ETL de vendas: CSV --> Parquet --> Parquet tratado
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)](https://spark.apache.org/)
@@ -6,15 +6,14 @@
 [![Apache Parquet](https://img.shields.io/badge/Parquet-50ABF1?style=for-the-badge&logo=apacheparquet&logoColor=white)](https://parquet.apache.org/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
 
-![Saída do pipeline ETL](imagens/print_etl.png)
+(imagens/print_etl.png)
 
-Pipeline de dados em PySpark: lê um CSV sujo, grava o bruto em Parquet, limpa e transforma, e grava
+Pipeline de dados em PySpark: lê um CSV sujo, grava o bruto em Parquet, limpa, transforma e grava
 o resultado em Parquet.
 
 235 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
 
-Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para
-cada regra do pipeline ter um motivo de existir.
+Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
 
 ## Como rodar
 
@@ -32,7 +31,7 @@ python -m pytest tests -q       # os testes
 Saída esperada:
 
 ```
-[1] extraido: 27 linhas de vendas_bruto.csv
+[1] extraído: 27 linhas de vendas_bruto.csv
 
 [2] bruto gravado em data\bruto\vendas
 
@@ -45,7 +44,7 @@ Saída esperada:
     D1 valor total criado             23 ->  23
 
 [3] tratada: 23 linhas
-    ATENCAO: 1 venda(s) sem valor_unitario; valor_total fica nulo
+    ATENÇÃO: 1 venda(s) sem valor_unitário; valor_total fica nulo
 
 [4] tratado gravado em data\tratado\vendas
 ```
@@ -70,8 +69,7 @@ dados/vendas_bruto.csv
   data/tratado/vendas   ← Parquet limpo, tipado, sem duplicata
 ```
 
-O bruto é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando os dois
-Parquet, e o dado original não se perde.
+O bruto é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando os dois Parquet, e o dado original não se perde.
 
 ## A sujeira do CSV e a regra que existe por causa dela
 
@@ -145,8 +143,35 @@ pasta que contenha `bin\winutils.exe`.
 
 ## O que não tem aqui
 
-Não tem orquestração (Airflow), quality gate com bloqueio de publicação, particionamento, Delta Lake,
-Kubernetes, nem carga em warehouse.
+Não tem orquestração (Airflow), quality gate com bloqueio de publicação, particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
 
-Se subir um degrau, a ordem seria: quality gate que reprova a publicação → particionamento por data →
-DAG no Airflow → escrita em Delta.
+Se subir um degrau, a ordem seria: quality gate que reprova a publicação → particionamento por data → DAG no Airflow → escrita em Delta.
+
+## SQL prático (Databricks CE)
+
+Foram desenvolvidas e validadas no [Databricks Community Edition](https://community.cloud.databricks.com/) 8 queries SQL aplicadas aos dados reais do projeto, cobrindo agregações, JOIN, GROUP BY, HAVING, Window Functions (ROW_NUMBER, RANK, LAG, SUM() OVER), Esquema Estrela (2 dimensões + 1 fato) e CTEs + Subqueries.
+
+Os arquivos estão em [sql/](sql/).
+
+| Query | Arquivo | Objetivo |
+|---|---|---|
+| 01 | [01_receita_por_categoria.sql](sql/01_receita_por_categoria.sql) | Receita total e quantidade vendida por categoria, com filtro por grupos (HAVING). |
+| 02 | [02_vendas_por_canal_e_mes.sql](sql/02_vendas_por_canal_e_mes.sql) | Vendas por canal e mês (YEAR/MONTH), com agregações. |
+| 03 | [03_top_clientes_por_receita.sql](sql/03_top_clientes_por_receita.sql) | Top clientes por receita, ticket médio com NULLIF, ordenação e filtro com HAVING. |
+| 04 | [04_window_functions.sql](sql/04_window_functions.sql) | ROW_NUMBER() e RANK() com PARTITION BY para ranqueamento por categoria. |
+| 05 | [05_acumulado_lag.sql](sql/05_acumulado_lag.sql) | SUM() OVER (running total por cliente) e LAG() para comparar com venda anterior. |
+| 06 | [06_running_total.sql](sql/06_running_total.sql) | Running total por categoria ao longo do tempo (SUM(SUM(...)) OVER (...)). |
+| 07 | [07_esquema_estrela.sql](sql/07_esquema_estrela.sql) | Criação do modelo estrela: dim_cliente, dim_produto (2 dimensões) e fato_vendas (1 fato). |
+| 08 | [08_cte_subquery.sql](sql/08_cte_subquery.sql) | CTEs encadeados + CROSS JOIN para comparar receita média por categoria. |
+
+### Validações no Databricks CE
+
+| Query | Print |
+|---|---|
+| 01 | ![01 - Receita por categoria](imagens/databricks_01_receita_por_categoria.png) |
+| 04 | ![04 - Window Functions](imagens/databricks_04_window_functions.png) |
+| 05 | ![05 - Acumulado com LAG](imagens/databricks_05_acumulado_lag.png) |
+| 06 | ![06 - Running total](imagens/databricks_06_running_total.png) |
+| 08 | ![08 - CTEs e Subqueries](imagens/databricks_08_cte_subquery.png) |
+
+> Base: dados/vendas_bruto_tratado_for_databricks.csv (decimal ponto).
