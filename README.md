@@ -175,9 +175,9 @@ Se subir um degrau, a ordem seria: quality gate que reprova a publicação → p
 
 ## SQL prático (Databricks CE)
 
-Foram desenvolvidas e validadas no [Databricks Community Edition](https://community.cloud.databricks.com/) 8 queries SQL aplicadas aos dados reais do projeto, cobrindo agregações, JOIN, GROUP BY, HAVING, Window Functions (ROW_NUMBER, RANK, LAG, SUM() OVER), Esquema Estrela (2 dimensões + 1 fato) e CTEs + Subqueries.
+Foram desenvolvidas e validadas no [Databricks Community Edition](https://community.cloud.databricks.com/) 10 queries SQL aplicadas aos dados reais do projeto, cobrindo agregações, JOIN, GROUP BY, HAVING, Window Functions (ROW_NUMBER, RANK, LAG, SUM() OVER), Esquema Estrela (2 dimensões + 1 fato), JOIN no modelo estrela e CTEs + Subqueries.
 
-As queries leem as tabelas criadas a partir do Parquet do ETL: `silver.vendas` (camada limpa, tipada) para as queries 01-06 e 08, e as tabelas do modelo estrela (`gold.dim_cliente`, `gold.dim_produto`, `gold.fato_vendas`) definidas na query 07. O passo a passo de carga está em [DATABRICKS.md](DATABRICKS.md).
+As queries leem as tabelas criadas a partir do Parquet do ETL: `silver.vendas` (camada limpa, tipada) para as queries 01-06 e 08, e as tabelas do modelo estrela (Gold) nas queries 07 (definição das dimensões e do fato), 09 e 10 (consulta com JOIN entre fato e dimensão). As 09 e 10 devolvem o mesmo resultado das 01 e 03, então servem de reconciliação entre Gold e Silver. O passo a passo de carga está em [DATABRICKS.md](DATABRICKS.md).
 
 Os arquivos estão em [sql/](sql/).
 
@@ -191,6 +191,8 @@ Os arquivos estão em [sql/](sql/).
 | 06 | [06_running_total.sql](sql/06_running_total.sql) | Running total por categoria ao longo do tempo (SUM(SUM(...)) OVER (...)). |
 | 07 | [07_esquema_estrela.sql](sql/07_esquema_estrela.sql) | Criação do modelo estrela: dim_cliente, dim_produto (2 dimensões) e fato_vendas (1 fato). |
 | 08 | [08_cte_subquery.sql](sql/08_cte_subquery.sql) | CTEs encadeados + CROSS JOIN para comparar receita média por categoria. |
+| 09 | [09_receita_por_categoria_estrela.sql](sql/09_receita_por_categoria_estrela.sql) | Receita por categoria consultando o modelo estrela (JOIN fato + dim_produto); reconcilia com a 01. |
+| 10 | [10_top_clientes_estrela.sql](sql/10_top_clientes_estrela.sql) | Top clientes por receita via modelo estrela (JOIN fato + dim_cliente); reconcilia com a 03. |
 
 ### Validações no Databricks CE
 
@@ -201,5 +203,7 @@ Os arquivos estão em [sql/](sql/).
 | 05 | ![05 - Acumulado com LAG](imagens/databricks_05_acumulado_lag.png) |
 | 06 | ![06 - Running total](imagens/databricks_06_running_total.png) |
 | 08 | ![08 - CTEs e Subqueries](imagens/databricks_08_cte_subquery.png) |
+| 09 | ![09 - Estrela: receita por categoria](imagens/09_receita_por_categoria_estrela.png) |
+| 10 | ![10 - Estrela: top clientes](imagens/10_top_clientes_estrela.png) |
 
 > Base: Parquet gerado pelo ETL (`data/silver/vendas` e `data/gold/*`), carregado como tabelas no Databricks. O antigo `dados/vendas_bruto_tratado_for_databricks.csv` era o CSV bruto com só o decimal ajustado e foi aposentado: as queries rodavam sobre linhas duplicadas e sem limpeza, que o pipeline já remove.
