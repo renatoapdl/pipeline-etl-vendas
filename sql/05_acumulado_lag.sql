@@ -15,7 +15,7 @@ SELECT
     PARTITION BY id_cliente
     ORDER BY data_venda, id_venda
   ) AS receita_item_anterior
-FROM vendas_bruto
+FROM silver.vendas
 WHERE id_cliente IS NOT NULL
   AND data_venda IS NOT NULL
 ORDER BY id_cliente, data_venda, id_venda;

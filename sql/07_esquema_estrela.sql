@@ -4,7 +4,7 @@
 -- DIMENSÃO CLIENTE (2 dimensões)
 SELECT DISTINCT
   id_cliente
-FROM vendas_bruto
+FROM silver.vendas
 WHERE id_cliente IS NOT NULL
 ORDER BY id_cliente;
 
@@ -12,7 +12,7 @@ ORDER BY id_cliente;
 SELECT DISTINCT
   produto,
   categoria
-FROM vendas_bruto
+FROM silver.vendas
 WHERE produto IS NOT NULL
 ORDER BY categoria, produto;
 
@@ -27,7 +27,7 @@ SELECT
   quantidade,
   valor_unitario,
   ROUND(valor_unitario * quantidade, 2) AS valor_total
-FROM vendas_bruto
+FROM silver.vendas
 ORDER BY id_venda;
 
 -- Pergunta adicional (não coberta no SQLBolt): Por que este modelo (2 dims + 1 fato) atende ao conceito de esquema estrela para responder agregações por cliente/categoria/produto?

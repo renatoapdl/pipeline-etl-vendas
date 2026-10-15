@@ -1,4 +1,10 @@
 """Camada Gold - modelo estrela para análises SQL.
+
+Espelha a estrela definida em sql/07_esquema_estrela.sql:
+2 dimensões (cliente, produto) + 1 fato (vendas).
+
+A categoria fica dentro de dim_produto: é atributo do produto, não
+dimensão à parte (dimensão separada seria snowflake).
 """
 from __future__ import annotations
 
@@ -10,29 +16,32 @@ from pyspark.sql.window import Window
 
 
 def _gerar_dimensoes(silver: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame]:
-    """Gera dimensões categoria/canal e fato vendas (star schema)."""
-    w_cat = Window.orderBy("nome_categoria")
-    dim_categoria = (
-        silver.select(F.col("categoria").alias("nome_categoria"))
+    """Gera dim_cliente, dim_produto e fato_vendas a partir do Silver."""
+    w_cliente = Window.orderBy("id_cliente")
+    dim_cliente = (
+        silver.select("id_cliente")
         .distinct()
-        .withColumn("cod_categoria", F.row_number().over(w_cat))
+        .withColumn("cod_cliente", F.row_number().over(w_cliente))
     )
 
-    w_canal = Window.orderBy("nome_canal")
-    dim_canal = (
-        silver.select(F.col("canal").alias("nome_canal"))
+    w_produto = Window.orderBy("categoria", "produto")
+    dim_produto = (
+        silver.select("produto", "categoria")
         .distinct()
-        .withColumn("cod_canal", F.row_number().over(w_canal))
+        .withColumn("cod_produto", F.row_number().over(w_produto))
     )
 
+    # Left join: venda que achar dim acesa o codigo, venda sem match fica
+    # com cod nulo (sinal de dado ruim) em vez de sumir do fato.
     fato_vendas = (
-        silver.join(dim_categoria, silver.categoria == dim_categoria.nome_categoria, "left")
-        .join(dim_canal, silver.canal == dim_canal.nome_canal, "left")
+        silver.join(dim_cliente, "id_cliente", "left")
+        .join(dim_produto, ["produto", "categoria"], "left")
         .select(
             "id_venda",
             "data_venda",
-            "cod_categoria",
-            "cod_canal",
+            "cod_cliente",
+            "cod_produto",
+            "canal",
             "quantidade",
             "valor_unitario",
             "valor_total",
@@ -40,35 +49,25 @@ def _gerar_dimensoes(silver: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame
         .orderBy("id_venda")
     )
 
-    return dim_categoria, dim_canal, fato_vendas
+    return dim_cliente, dim_produto, fato_vendas
 
 
 def gravar_gold(silver: DataFrame, saida_gold: Path) -> dict[str, Path]:
-    """Cria e grava camadas Gold (dimensões + fato)."""
+    """Cria e grava a camada Gold (dimensões + fato) em Parquet."""
     saida_gold.mkdir(parents=True, exist_ok=True)
-    dim_cat, dim_canal, fato = _gerar_dimensoes(silver)
+    dim_cliente, dim_produto, fato = _gerar_dimensoes(silver)
 
-    (
-        dim_cat.write.mode("overwrite")
-        .format("parquet")
-        .option("compression", "snappy")
-        .save(str(saida_gold / "dim_categoria"))
-    )
-    (
-        dim_canal.write.mode("overwrite")
-        .format("parquet")
-        .option("compression", "snappy")
-        .save(str(saida_gold / "dim_canal"))
-    )
-    (
-        fato.write.mode("overwrite")
-        .format("parquet")
-        .option("compression", "snappy")
-        .save(str(saida_gold / "fato_vendas"))
-    )
-
-    return {
-        "dim_categoria": saida_gold / "dim_categoria",
-        "dim_canal": saida_gold / "dim_canal",
-        "fato_vendas": saida_gold / "fato_vendas",
+    tabelas = {
+        "dim_cliente": dim_cliente,
+        "dim_produto": dim_produto,
+        "fato_vendas": fato,
     }
+    for nome, df in tabelas.items():
+        (
+            df.write.mode("overwrite")
+            .format("parquet")
+            .option("compression", "snappy")
+            .save(str(saida_gold / nome))
+        )
+
+    return {nome: saida_gold / nome for nome in tabelas}

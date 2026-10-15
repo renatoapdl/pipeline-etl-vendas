@@ -14,7 +14,7 @@
 flowchart LR
   A[CSV vendas_bruto.csv] --> B["<b>Bronze</b><br/>data/bronze/vendas"]
   B --> C["<b>Silver</b><br/>data/silver/vendas<br/>R1-R6 + D1"]
-  C --> D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_categoria + dim_canal"]
+  C --> D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_cliente + dim_produto"]
   D --> E["SQL 01-08<br/>Databricks CE"]
 ```
 
@@ -22,7 +22,7 @@ flowchart LR
 
 Pipeline de dados em PySpark com arquitetura Medallion: lê um CSV sujo, grava a camada Bronze, limpa e transforma para a camada Silver e gera as dimensões + fato na camada Gold.
 
-279 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
+278 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
 
 Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
 
@@ -60,8 +60,8 @@ SILVER gravado em data\silver\vendas
     linhas finais: 23
 
 GOLD gravado:
-     - dim_categoria: data\gold\dim_categoria
-     - dim_canal: data\gold\dim_canal
+     - dim_cliente: data\gold\dim_cliente
+     - dim_produto: data\gold\dim_produto
      - fato_vendas: data\gold\fato_vendas
 
 ETL (Medallion) concluido com sucesso
@@ -88,7 +88,7 @@ dados/vendas_bruto.csv
          │
          ▼
    ┌───────────┐  star schema: 2 dimensões + 1 fato
-   │   gold    │  dim_categoria, dim_canal, fato_vendas
+   │   gold    │  dim_cliente, dim_produto, fato_vendas
    └─────┬─────┘
          ▼
   data/gold/*          ← Parquet pronto para análise/SQL (Gold)
@@ -149,7 +149,7 @@ O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisã
 | `etl/extract.py` | 40 | lê o CSV, com schema declarado |
 | `etl/transform.py` | 61 | as 6 regras + o campo derivado |
 | `etl/load.py` | 19 | grava Parquet |
-| `etl/gold.py` | 74 | dimensões + fato (star schema da camada Gold) |
+| `etl/gold.py` | 73 | dimensões + fato (star schema da camada Gold) |
 | `etl/run.py` | 85 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
 | `tests/test_transform.py` | 133 | 9 testes, um por regra e dois de borda |
 
@@ -177,6 +177,8 @@ Se subir um degrau, a ordem seria: quality gate que reprova a publicação → p
 
 Foram desenvolvidas e validadas no [Databricks Community Edition](https://community.cloud.databricks.com/) 8 queries SQL aplicadas aos dados reais do projeto, cobrindo agregações, JOIN, GROUP BY, HAVING, Window Functions (ROW_NUMBER, RANK, LAG, SUM() OVER), Esquema Estrela (2 dimensões + 1 fato) e CTEs + Subqueries.
 
+As queries leem as tabelas criadas a partir do Parquet do ETL: `silver.vendas` (camada limpa, tipada) para as queries 01-06 e 08, e as tabelas do modelo estrela (`gold.dim_cliente`, `gold.dim_produto`, `gold.fato_vendas`) definidas na query 07. O passo a passo de carga está em [DATABRICKS.md](DATABRICKS.md).
+
 Os arquivos estão em [sql/](sql/).
 
 | Query | Arquivo | Objetivo |
@@ -200,4 +202,4 @@ Os arquivos estão em [sql/](sql/).
 | 06 | ![06 - Running total](imagens/databricks_06_running_total.png) |
 | 08 | ![08 - CTEs e Subqueries](imagens/databricks_08_cte_subquery.png) |
 
-> Base: dados/vendas_bruto_tratado_for_databricks.csv (decimal ponto).
+> Base: Parquet gerado pelo ETL (`data/silver/vendas` e `data/gold/*`), carregado como tabelas no Databricks. O antigo `dados/vendas_bruto_tratado_for_databricks.csv` era o CSV bruto com só o decimal ajustado e foi aposentado: as queries rodavam sobre linhas duplicadas e sem limpeza, que o pipeline já remove.

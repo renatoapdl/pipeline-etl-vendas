@@ -8,7 +8,7 @@ SELECT
   COUNT(DISTINCT CONCAT(id_cliente, data_venda, produto)) AS pedidos_estimados,
   SUM(quantidade) AS qtd_total,
   ROUND(SUM(valor_unitario * quantidade), 2) AS receita_bruta
-FROM vendas_bruto
+FROM silver.vendas
 WHERE data_venda IS NOT NULL
   AND canal IS NOT NULL
 GROUP BY canal, YEAR(data_venda), MONTH(data_venda)

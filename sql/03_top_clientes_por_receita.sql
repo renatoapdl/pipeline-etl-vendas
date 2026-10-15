@@ -7,7 +7,7 @@ SELECT
   SUM(quantidade) AS qtd_total,
   ROUND(SUM(valor_unitario * quantidade), 2) AS receita_bruta,
   ROUND(SUM(valor_unitario * quantidade) / NULLIF(SUM(quantidade), 0), 2) AS ticket_medio_item
-FROM vendas_bruto
+FROM silver.vendas
 WHERE id_cliente IS NOT NULL
 GROUP BY id_cliente
 HAVING SUM(valor_unitario * quantidade) > 100

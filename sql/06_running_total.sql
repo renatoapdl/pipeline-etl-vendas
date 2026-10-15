@@ -9,7 +9,7 @@ SELECT
     ORDER BY data_venda
     ROWS BETWEEN UNBOUNDED PRECEDING AND CURRENT ROW
   ), 2) AS receita_acumulada_categoria
-FROM vendas_bruto
+FROM silver.vendas
 WHERE categoria IS NOT NULL
   AND data_venda IS NOT NULL
 GROUP BY categoria, data_venda

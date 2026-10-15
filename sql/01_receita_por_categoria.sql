@@ -6,7 +6,7 @@ SELECT
   ROUND(SUM(valor_unitario * quantidade), 2) AS receita_bruta,
   COUNT(DISTINCT id_cliente) AS clientes_distintos,
   SUM(quantidade) AS qtd_total
-FROM vendas_bruto
+FROM silver.vendas
 WHERE categoria IS NOT NULL
 GROUP BY categoria
 HAVING SUM(valor_unitario * quantidade) > 0

@@ -5,7 +5,7 @@ WITH receita_por_categoria AS (
     SELECT 
         categoria,
         ROUND(SUM(valor_unitario * quantidade), 2) AS receita_bruta
-    FROM vendas_bruto 
+    FROM silver.vendas 
     WHERE categoria IS NOT NULL
     GROUP BY categoria
     HAVING SUM(valor_unitario * quantidade) > 0

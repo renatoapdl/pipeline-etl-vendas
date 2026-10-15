@@ -8,7 +8,7 @@ SELECT
   SUM(quantidade) AS qtd_total,
   ROW_NUMBER() OVER (PARTITION BY categoria ORDER BY SUM(valor_unitario * quantidade) DESC) AS rn,
   RANK() OVER (PARTITION BY categoria ORDER BY SUM(valor_unitario * quantidade) DESC) AS rk
-FROM vendas_bruto
+FROM silver.vendas
 WHERE categoria IS NOT NULL
 GROUP BY categoria, produto
 HAVING SUM(valor_unitario * quantidade) > 0
