@@ -13,5 +13,3 @@ WHERE data_venda IS NOT NULL
   AND canal IS NOT NULL
 GROUP BY canal, YEAR(data_venda), MONTH(data_venda)
 ORDER BY ano, mes, receita_bruta DESC;
-
--- Pergunta adicional (não coberta no SQLBolt): Em quais meses o canal 'web' superou 'loja' em receita bruta?

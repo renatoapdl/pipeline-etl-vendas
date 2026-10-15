@@ -29,5 +29,3 @@ SELECT
   ROUND(valor_unitario * quantidade, 2) AS valor_total
 FROM silver.vendas
 ORDER BY id_venda;
-
--- Pergunta adicional (não coberta no SQLBolt): Por que este modelo (2 dims + 1 fato) atende ao conceito de esquema estrela para responder agregações por cliente/categoria/produto?

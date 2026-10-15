@@ -13,5 +13,3 @@ WHERE categoria IS NOT NULL
 GROUP BY categoria, produto
 HAVING SUM(valor_unitario * quantidade) > 0
 ORDER BY categoria, rk, produto;
-
--- Pergunta adicional (não coberta no SQLBolt): Qual a diferença prática entre ROW_NUMBER e RANK ao ranquear produtos por receita dentro da mesma categoria?

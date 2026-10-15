@@ -32,20 +32,20 @@ No Databricks, num notebook ou no SQL Editor, crie os schemas e um volume para r
 ```sql
 CREATE SCHEMA IF NOT EXISTS silver;
 CREATE SCHEMA IF NOT EXISTS gold;
-CREATE VOLUME IF NOT EXISTS main.default.vendas_etl;
+CREATE VOLUME IF NOT EXISTS workspace.default.vendas_etl;
 ```
 
-Isso cria o caminho `/Volumes/main/default/vendas_etl/`.
+Isso cria o caminho `/Volumes/workspace/default/vendas_etl/`.
 
 ### 2. Subir os Parquets
 
-Abra o Catalog Explorer, navegue até `main` → `default` → `vendas_etl` e use o botão de upload (arrastar e soltar arquivos). Crie uma pasta por tabela e mande o respectivo `part-...parquet` para dentro dela:
+Abra o Catalog Explorer, navegue até `workspace` → `default` → `vendas_etl` e use o botão de upload (arrastar e soltar arquivos). Crie uma pasta por tabela e mande o respectivo `part-...parquet` para dentro dela:
 
 ```
-/Volumes/main/default/vendas_etl/silver/vendas/part-00000-....parquet
-/Volumes/main/default/vendas_etl/gold/dim_cliente/part-00000-....parquet
-/Volumes/main/default/vendas_etl/gold/dim_produto/part-00000-....parquet
-/Volumes/main/default/vendas_etl/gold/fato_vendas/part-00000-....parquet
+/Volumes/workspace/default/vendas_etl/silver/vendas/part-00000-....parquet
+/Volumes/workspace/default/vendas_etl/gold/dim_cliente/part-00000-....parquet
+/Volumes/workspace/default/vendas_etl/gold/dim_produto/part-00000-....parquet
+/Volumes/workspace/default/vendas_etl/gold/fato_vendas/part-00000-....parquet
 ```
 
 O nome exato dos menus varia um pouco entre workspaces. O que importa é o arquivo terminar nesses caminhos.

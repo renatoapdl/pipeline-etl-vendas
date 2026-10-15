@@ -11,5 +11,3 @@ WHERE categoria IS NOT NULL
 GROUP BY categoria
 HAVING SUM(valor_unitario * quantidade) > 0
 ORDER BY receita_bruta DESC;
-
--- Pergunta adicional (não coberta no SQLBolt): Quais categorias têm receita bruta acima de R$ 5.000, considerando apenas vendas com quantidade > 0?

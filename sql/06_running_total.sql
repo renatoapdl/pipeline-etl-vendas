@@ -14,5 +14,3 @@ WHERE categoria IS NOT NULL
   AND data_venda IS NOT NULL
 GROUP BY categoria, data_venda
 ORDER BY categoria, data_venda;
-
--- Pergunta adicional (não coberta no SQLBolt): Qual a diferença entre usar SUM() OVER com ROWS UNBOUNDED PRECEDING vs sem especificar frames?

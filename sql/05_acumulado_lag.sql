@@ -19,5 +19,3 @@ FROM silver.vendas
 WHERE id_cliente IS NOT NULL
   AND data_venda IS NOT NULL
 ORDER BY id_cliente, data_venda, id_venda;
-
--- Pergunta adicional (não coberta no SQLBolt): Em que situação usar LAG() ajuda a identificar picos de compra por cliente?

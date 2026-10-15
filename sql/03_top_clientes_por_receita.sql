@@ -13,5 +13,3 @@ GROUP BY id_cliente
 HAVING SUM(valor_unitario * quantidade) > 100
 ORDER BY receita_bruta DESC
 LIMIT 20;
-
--- Pergunta adicional (não coberta no SQLBolt): Quais clientes ultrapassam R$ 1.000 em receita bruta, com pelo menos 5 itens vendidos?
