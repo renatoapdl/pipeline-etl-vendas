@@ -8,6 +8,16 @@
 [![Apache Parquet](https://img.shields.io/badge/Parquet-50ABF1?style=for-the-badge&logo=apacheparquet&logoColor=white)](https://parquet.apache.org/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
 
+## Arquitetura (Medallion)
+
+```mermaid
+flowchart LR
+  A[CSV vendas_bruto.csv] --> B[Bronze\ndata/bronze/vendas]
+  B --> C[Silver\ndata/silver/vendas\nR1-R6 + D1]
+  C --> D[Gold\ndata/gold\nfato_vendas + dim_categoria + dim_canal]
+  D --> E[SQL 01-08\nDatabricks CE]
+```
+
 ![ETL](imagens/print_etl.png)
 
 Pipeline de dados em PySpark: lê um CSV sujo, grava o bruto em Parquet, limpa, transforma e grava

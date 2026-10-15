@@ -1,4 +1,4 @@
-"""Executa o pipeline inteiro.
+"""Executa o pipeline inteiro (Medallion: Bronze -> Silver -> Gold).
 """
 from __future__ import annotations
 
@@ -10,20 +10,14 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
-from pyspark.sql.functions import col
-
-from etl import extract, load, transform  # noqa: E402
+from etl import extract, gold, load, transform  # noqa: E402
 
 ENTRADA_PADRAO = RAIZ / "dados" / "vendas_bruto.csv"
 SAIDA_PADRAO = RAIZ / "data"
 
 
 def get_spark(app_name: str = "etl-vendas"):
-    """Sessao Spark local.
-    O master só é definido quando o processo não veio do spark-submit. Se fosse definido
-    sempre, o .master() sobrescreveria o --master da linha de comando e o job rodaria
-    local mesmo num cluster.
-    """
+    """Sessao Spark local."""
     from pyspark.sql import SparkSession
 
     builder = SparkSession.builder.appName(app_name).config(
@@ -35,7 +29,7 @@ def get_spark(app_name: str = "etl-vendas"):
 
 
 def main() -> None:
-    parser = argparse.ArgumentParser(description="ETL de vendas: CSV -> Parquet -> Parquet tratado")
+    parser = argparse.ArgumentParser(description="ETL de vendas (Medallion: Bronze -> Silver -> Gold)")
     parser.add_argument("--entrada", type=Path, default=ENTRADA_PADRAO, help="CSV de entrada")
     parser.add_argument("--saida", type=Path, default=SAIDA_PADRAO, help="Pasta de saida")
     args = parser.parse_args()
@@ -44,11 +38,11 @@ def main() -> None:
     try:
         bruto = extract.ler_vendas(spark, args.entrada)
         total = bruto.count()
-        print(f"\n[1] extraido: {total} linhas de {args.entrada.name}")
+        print(f"\n[1] BRONZE - extraido: {total} linhas de {args.entrada.name}")
         print(f"    colunas: {', '.join(bruto.columns)}\n")
 
-        destino_bruto = load.gravar_parquet(bruto, args.saida / "bruto" / "vendas")
-        print(f"[2] bruto gravado em {destino_bruto.relative_to(RAIZ)}\n")
+        destino_bruto = load.gravar_parquet(bruto, args.saida / "bronze" / "vendas")
+        print(f"[2] BRONZE gravado em {destino_bruto.relative_to(RAIZ)}\n")
 
         etapas = (
             ("R1 descartadas sem id ou data", transform.descartar_incompletos),
@@ -59,25 +53,30 @@ def main() -> None:
             ("R6 duplicadas removidas", transform.remover_duplicadas),
             ("D1 valor total criado", transform.criar_valor_total),
         )
+
         atual = bruto
         for nome, funcao in etapas:
             antes = atual.count()
             atual = funcao(atual)
-            print(f"    {nome:32} {antes:>3} -> {atual.count():>3}")
+            print(f"[{etapas.index((nome, funcao)) + 3}] SILVER - {nome}: {antes:>3} -> {atual.count():>3}")
 
         invalidas = atual.filter("data_venda is null").count()
-        print(f"\n[3] tratada: {atual.count()} linhas" + (f", {invalidas} com data invalida" if invalidas else ""))
+        if invalidas:
+            print(f"    ATENCAO: {invalidas} venda(s) com data invalida")
 
-        
-        sem_preco = atual.filter(col("valor_unitario").isNull()).count()
+        sem_preco = atual.filter("valor_unitario is null").count()
         if sem_preco:
             print(f"    ATENCAO: {sem_preco} venda(s) sem valor_unitario; valor_total fica nulo")
 
-        destino_tratado = load.gravar_parquet(atual, args.saida / "tratado" / "vendas")
-        print(f"[4] tratado gravado em {destino_tratado.relative_to(RAIZ)}\n")
+        destino_tratado = load.gravar_parquet(atual, args.saida / "silver" / "vendas")
+        print(f"\n[9] SILVER gravado em {destino_tratado.relative_to(RAIZ)}")
+        print(f"    linhas finais: {atual.count()}\n")
 
-        print("[5] amostra do resultado:")
-        atual.show(5, truncate=False)
+        gold_paths = gold.gravar_gold(atual, args.saida / "gold")
+        print("[10] GOLD gravado:")
+        for camada, caminho in gold_paths.items():
+            print(f"     - {camada}: {caminho.relative_to(RAIZ)}")
+        print("\nETL (Medallion) concluido com sucesso\n")
     finally:
         spark.stop()
 
