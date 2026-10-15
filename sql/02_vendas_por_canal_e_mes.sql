@@ -1,4 +1,4 @@
-﻿-- Pergunta de negócio: Qual canal de venda performa melhor por mês?
+-- Pergunta de negócio: Qual canal de venda performa melhor por mês?
 -- Resultado esperado: Total de vendas, quantidade e receita bruta agrupados por canal e mês, ordenados por mês e receita.
 
 SELECT
@@ -14,4 +14,4 @@ WHERE data_venda IS NOT NULL
 GROUP BY canal, YEAR(data_venda), MONTH(data_venda)
 ORDER BY ano, mes, receita_bruta DESC;
 
--- Pergunta adicional (não coberta no SQLBolt): Em quais meses o canal 'Online' superou 'Loja Física' em receita bruta?
+-- Pergunta adicional (não coberta no SQLBolt): Em quais meses o canal 'web' superou 'loja' em receita bruta?

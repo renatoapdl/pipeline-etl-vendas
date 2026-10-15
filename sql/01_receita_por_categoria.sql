@@ -1,4 +1,4 @@
-﻿-- Pergunta de negócio: Qual categoria gera mais receita bruta com base nos dados de vendas?
+-- Pergunta de negócio: Qual categoria gera mais receita bruta com base nos dados de vendas?
 -- Resultado esperado: Lista de categorias ordenada por receita bruta decrescente.
 
 SELECT

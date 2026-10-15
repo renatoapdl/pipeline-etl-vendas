@@ -1,4 +1,4 @@
-﻿-- Pergunta de negócio: Quais clientes geram mais receita bruta?
+-- Pergunta de negócio: Quais clientes geram mais receita bruta?
 -- Resultado esperado: Top de clientes com receita, quantidade total e média por item, ordenados por receita decrescente.
 
 SELECT

@@ -57,19 +57,19 @@ Apontando uma tabela para a pasta, o Databricks passa a ler o Parquet de lá:
 ```sql
 CREATE TABLE IF NOT EXISTS silver.vendas
 USING PARQUET
-LOCATION '/Volumes/main/default/vendas_etl/silver/vendas';
+LOCATION '/Volumes/workspace/default/vendas_etl/silver/vendas';
 
 CREATE TABLE IF NOT EXISTS gold.dim_cliente
 USING PARQUET
-LOCATION '/Volumes/main/default/vendas_etl/gold/dim_cliente';
+LOCATION '/Volumes/workspace/default/vendas_etl/gold/dim_cliente';
 
 CREATE TABLE IF NOT EXISTS gold.dim_produto
 USING PARQUET
-LOCATION '/Volumes/main/default/vendas_etl/gold/dim_produto';
+LOCATION '/Volumes/workspace/default/vendas_etl/gold/dim_produto';
 
 CREATE TABLE IF NOT EXISTS gold.fato_vendas
 USING PARQUET
-LOCATION '/Volumes/main/default/vendas_etl/gold/fato_vendas';
+LOCATION '/Volumes/workspace/default/vendas_etl/gold/fato_vendas';
 ```
 
 ### 4. Conferir

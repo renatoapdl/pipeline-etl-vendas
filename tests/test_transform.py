@@ -1,4 +1,4 @@
-﻿"""Testes das regras de limpeza.
+"""Testes das regras de limpeza.
 
 Cada teste monta um DataFrame minimo com um tipo de sujeira e verifica que a regra
 resolve. Roda em Spark local, entao precisa do Java instalado.
