@@ -1,4 +1,4 @@
-﻿# ETL de vendas: CSV --> Parquet --> Parquet tratado
+# ETL de vendas: CSV --> Bronze --> Silver --> Gold (Medallion)
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)](https://spark.apache.org/)
@@ -12,18 +12,17 @@
 
 ```mermaid
 flowchart LR
-  A[CSV vendas_bruto.csv] --> B[Bronze\ndata/bronze/vendas]
-  B --> C[Silver\ndata/silver/vendas\nR1-R6 + D1]
-  C --> D[Gold\ndata/gold\nfato_vendas + dim_categoria + dim_canal]
-  D --> E[SQL 01-08\nDatabricks CE]
+  A[CSV vendas_bruto.csv] --> B["<b>Bronze</b><br/>data/bronze/vendas"]
+  B --> C["<b>Silver</b><br/>data/silver/vendas<br/>R1-R6 + D1"]
+  C --> D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_categoria + dim_canal"]
+  D --> E["SQL 01-08<br/>Databricks CE"]
 ```
 
 ![ETL](imagens/print_etl.png)
 
-Pipeline de dados em PySpark: lê um CSV sujo, grava o bruto em Parquet, limpa, transforma e grava
-o resultado em Parquet.
+Pipeline de dados em PySpark com arquitetura Medallion: lê um CSV sujo, grava a camada Bronze, limpa e transforma para a camada Silver e gera as dimensões + fato na camada Gold.
 
-235 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
+279 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
 
 Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
 
@@ -42,23 +41,30 @@ python -m pytest tests -q       # os testes
 
 Saída esperada:
 
-```
-[1] extraído: 27 linhas de vendas_bruto.csv
+```text
+[1] BRONZE - extraido: 27 linhas de vendas_bruto.csv
+    colunas: id_venda, id_cliente, data_venda, produto, categoria, quantidade, valor_unitario, canal, situacao
 
-[2] bruto gravado em data\bruto\vendas
+[2] BRONZE gravado em data\bronze\vendas
 
-    R1 descartadas sem id ou data     27 ->  25
-    R2 datas convertidas              25 ->  25
-    R3 valores convertidos            25 ->  25
-    R4 texto normalizado              25 ->  25
-    R5 nulos preenchidos              25 ->  25
-    R6 duplicadas removidas           25 ->  23
-    D1 valor total criado             23 ->  23
+[3] SILVER - R1 descartadas sem id ou data:  27 ->  25
+[4] SILVER - R2 datas convertidas:  25 ->  25
+[5] SILVER - R3 valores convertidos:  25 ->  25
+[6] SILVER - R4 texto normalizado:  25 ->  25
+[7] SILVER - R5 nulos preenchidos:  25 ->  25
+[8] SILVER - R6 duplicadas removidas:  25 ->  23
+[9] SILVER - D1 valor total criado:  23 ->  23
+    ATENCAO: 1 venda(s) sem valor_unitario; valor_total fica nulo
 
-[3] tratada: 23 linhas
-    ATENÇÃO: 1 venda(s) sem valor_unitário; valor_total fica nulo
+SILVER gravado em data\silver\vendas
+    linhas finais: 23
 
-[4] tratado gravado em data\tratado\vendas
+GOLD gravado:
+     - dim_categoria: data\gold\dim_categoria
+     - dim_canal: data\gold\dim_canal
+     - fato_vendas: data\gold\fato_vendas
+
+ETL (Medallion) concluido com sucesso
 ```
 
 ## O que acontece
@@ -71,17 +77,24 @@ dados/vendas_bruto.csv
    │ extract │   (schema declarado, tudo como string)
    └────┬────┘
         ▼
-  data/bruto/vendas      ← Parquet como o dado chegou
+  data/bronze/vendas   ← Parquet como o dado chegou (Bronze)
         │
         ▼
    ┌───────────┐  6 regras, uma função cada
    │ transform │  descartar, datas, valores, texto, nulos, duplicadas
    └─────┬─────┘  + 1 campo derivado (valor_total)
          ▼
-  data/tratado/vendas   ← Parquet limpo, tipado, sem duplicata
+  data/silver/vendas   ← Parquet limpo, tipado, sem duplicata (Silver)
+         │
+         ▼
+   ┌───────────┐  star schema: 2 dimensões + 1 fato
+   │   gold    │  dim_categoria, dim_canal, fato_vendas
+   └─────┬─────┘
+         ▼
+  data/gold/*          ← Parquet pronto para análise/SQL (Gold)
 ```
 
-O bruto é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando os dois Parquet, e o dado original não se perde.
+O Bronze é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando com o Silver, e o dado original não se perde.
 
 ## A sujeira do CSV e a regra que existe por causa dela
 
@@ -133,11 +146,12 @@ O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisã
 
 | Arquivo | Linhas | O que é |
 |---------|--------|---------|
-| `etl/extract.py` | 35 | lê o CSV, com schema declarado |
-| `etl/transform.py` | 107 | as 6 regras + o campo derivado |
-| `etl/load.py` | 18 | grava Parquet |
-| `etl/run.py` | 75 | executa o pipeline e mostra o efeito de cada regra |
-| `tests/test_transform.py` | 115 | 9 testes, um por regra e dois de borda |
+| `etl/extract.py` | 40 | lê o CSV, com schema declarado |
+| `etl/transform.py` | 61 | as 6 regras + o campo derivado |
+| `etl/load.py` | 19 | grava Parquet |
+| `etl/gold.py` | 74 | dimensões + fato (star schema da camada Gold) |
+| `etl/run.py` | 85 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
+| `tests/test_transform.py` | 133 | 9 testes, um por regra e dois de borda |
 
 ## Testes
 

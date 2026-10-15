@@ -1,4 +1,4 @@
-"""Camada Gold (curated) - modelo estrela para análises SQL.
+"""Camada Gold - modelo estrela para análises SQL.
 """
 from __future__ import annotations
 

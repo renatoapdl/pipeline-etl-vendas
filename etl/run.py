@@ -69,11 +69,11 @@ def main() -> None:
             print(f"    ATENCAO: {sem_preco} venda(s) sem valor_unitario; valor_total fica nulo")
 
         destino_tratado = load.gravar_parquet(atual, args.saida / "silver" / "vendas")
-        print(f"\n[9] SILVER gravado em {destino_tratado.relative_to(RAIZ)}")
+        print(f"\nSILVER gravado em {destino_tratado.relative_to(RAIZ)}")
         print(f"    linhas finais: {atual.count()}\n")
 
         gold_paths = gold.gravar_gold(atual, args.saida / "gold")
-        print("[10] GOLD gravado:")
+        print("GOLD gravado:")
         for camada, caminho in gold_paths.items():
             print(f"     - {camada}: {caminho.relative_to(RAIZ)}")
         print("\nETL (Medallion) concluido com sucesso\n")
