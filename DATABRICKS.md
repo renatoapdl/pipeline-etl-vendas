@@ -1,16 +1,6 @@
 # Databricks CE: carregar o resultado do ETL
 
-As queries em `sql/` não leem mais um CSV. Elas leem as tabelas criadas a partir do Parquet que o próprio ETL gera. Este arquivo é o passo a passo dessa carga.
-
-## Por que mudou
-
-Antes, a base do Databricks era o `dados/vendas_bruto_tratado_for_databricks.csv`: o CSV bruto com só a vírgula decimal trocada por ponto. Ou seja, as queries rodavam sobre dados sujos:
-
-- `VEN-0004` e `VEN-0011` apareciam duas vezes, e as agregações contavam a duplicata;
-- a linha sem `id_venda` e a sem `data_venda` ainda estavam lá;
-- `  Notebook  ` e `CABO USB` sem normalizar quebravam o agrupamento.
-
-Agora a fonte é a saída do pipeline: `silver.vendas` (limpa e tipada) e o modelo estrela em `gold.*`. O número do resultado muda para melhor, e passa a bater com o que o README descreve (27 → 23).
+As queries em `sql/` no Databricks lêem as tabelas em Parquet criadas no ETL 
 
 ## O que subir
 
@@ -55,21 +45,17 @@ O nome exato dos menus varia um pouco entre workspaces. O que importa é o arqui
 Apontando uma tabela para a pasta, o Databricks passa a ler o Parquet de lá:
 
 ```sql
-CREATE TABLE IF NOT EXISTS silver.vendas
-USING PARQUET
-LOCATION '/Volumes/workspace/default/vendas_etl/silver/vendas';
+CREATE OR REPLACE TABLE silver.vendas USING DELTA AS
+SELECT * FROM parquet.`/Volumes/workspace/default/vendas_etl/silver/vendas/`;
 
-CREATE TABLE IF NOT EXISTS gold.dim_cliente
-USING PARQUET
-LOCATION '/Volumes/workspace/default/vendas_etl/gold/dim_cliente';
+CREATE OR REPLACE TABLE gold.dim_cliente USING DELTA AS
+SELECT * FROM parquet.`/Volumes/workspace/default/vendas_etl/gold/dim_cliente/`;
 
-CREATE TABLE IF NOT EXISTS gold.dim_produto
-USING PARQUET
-LOCATION '/Volumes/workspace/default/vendas_etl/gold/dim_produto';
+CREATE OR REPLACE TABLE gold.dim_produto USING DELTA AS
+SELECT * FROM parquet.`/Volumes/workspace/default/vendas_etl/gold/dim_produto/`;
 
-CREATE TABLE IF NOT EXISTS gold.fato_vendas
-USING PARQUET
-LOCATION '/Volumes/workspace/default/vendas_etl/gold/fato_vendas';
+CREATE OR REPLACE TABLE gold.fato_vendas USING DELTA AS
+SELECT * FROM parquet.`/Volumes/workspace/default/vendas_etl/gold/fato_vendas/`;
 ```
 
 ### 4. Conferir
@@ -82,24 +68,3 @@ SELECT COUNT(*) FROM gold.fato_vendas;   -- 23
 ```
 
 Se der os quatro números, as queries em `sql/` rodam direto.
-
-## O que muda no resultado das queries
-
-- **Sem duplicata:** `VEN-0004` e `VEN-0011` deixam de ser contados duas vezes.
-- **Data é `date` de verdade:** vem do Parquet, não mais texto.
-- **Valores são `double`:** sem o ajuste manual de vírgula.
-- **Texto em minúsculas:** o R4 normaliza, então categoria e canal saem como `informática`, `web`.
-- **Valores nulos:** a venda sem preço continua com `valor_unitario` nulo, de propósito.
-
-## Reatualizar depois de mexer no ETL
-
-Rode `python etl/run.py` (o `overwrite` regrava o Parquet), suba o `part-...parquet` novo por cima do antigo no volume e recarregue a tabela:
-
-```sql
-REFRESH TABLE silver.vendas;
-REFRESH TABLE gold.fato_vendas;
-```
-
-## Próximo degrau
-
-Hoje esse upload é manual. O passo seguinte é um `etl/publish_databricks.py` que sobe os Parquets e roda o DDL sozinho, usando um Personal Access Token e a REST API do Databricks.
