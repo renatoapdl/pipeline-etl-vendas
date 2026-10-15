@@ -1,4 +1,4 @@
-# ETL de vendas: CSV --> Bronze --> Silver --> Gold (Medallion)
+﻿# ETL de vendas: CSV --> Bronze --> Silver --> Gold (Medallion)
 
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)](https://spark.apache.org/)
@@ -203,7 +203,7 @@ Os arquivos estão em [sql/](sql/).
 | 05 | ![05 - Acumulado com LAG](imagens/databricks_05_acumulado_lag.png) |
 | 06 | ![06 - Running total](imagens/databricks_06_running_total.png) |
 | 08 | ![08 - CTEs e Subqueries](imagens/databricks_08_cte_subquery.png) |
-| 09 | ![09 - Estrela: receita por categoria](imagens/09_receita_por_categoria_estrela.png) |
-| 10 | ![10 - Estrela: top clientes](imagens/10_top_clientes_estrela.png) |
+| 09 | ![09 - Estrela: receita por categoria](imagens/databricks_09_receita_por_categoria_estrela.png) |
+| 10 | ![10 - Estrela: top clientes](imagens/databricks_10_top_clientes_estrela.png) |
 
-> Base: Parquet gerado pelo ETL (`data/silver/vendas` e `data/gold/*`), carregado como tabelas no Databricks. O antigo `dados/vendas_bruto_tratado_for_databricks.csv` era o CSV bruto com só o decimal ajustado e foi aposentado: as queries rodavam sobre linhas duplicadas e sem limpeza, que o pipeline já remove.
+> Base: Parquet gerado pelo ETL (`data/silver/vendas` e `data/gold/*`), carregado como tabelas no Databricks.
