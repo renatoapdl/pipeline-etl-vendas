@@ -22,7 +22,7 @@ flowchart LR
 
 Pipeline de dados em PySpark com arquitetura Medallion: lê um CSV sujo, grava a camada Bronze, limpa e transforma para a camada Silver e gera as dimensões + fato na camada Gold.
 
-278 linhas de código (sem testes), 9 testes, roda em cerca de 15 segundos.
+411 linhas de código (sem testes), 11 testes, roda em cerca de 15 segundos.
 
 Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
 
@@ -151,27 +151,40 @@ O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisã
 | `etl/load.py` | 19 | grava Parquet |
 | `etl/gold.py` | 73 | dimensões + fato (star schema da camada Gold) |
 | `etl/run.py` | 85 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
+| `etl/quality.py` | 133 | quality gate: valida o Silver e bloqueia o Gold se houver erro |
 | `tests/test_transform.py` | 133 | 9 testes, um por regra e dois de borda |
+| `tests/test_quality.py` | 70 | 2 testes do quality gate |
 
 ## Testes
 
 ```
-9 passed
+11 passed
 ```
 
 Cobrem: valor com moeda e vírgula, data em `dd/mm/aaaa`, texto com espaço e caixa alta, duplicada
 mantendo a data mais recente, nulo como `null` e como `""`, campo derivado, linha sem id/data, e o
-preço ausente continuar nulo.
+preço ausente continuar nulo, além do gate aprovar uma base válida e reprovar uma data inválida.
 
 No Windows, se aparecer `Python worker failed to connect back`, é o motivo do `PYSPARK_PYTHON` explicado
 acima. Se faltar o `winutils.exe`, o PySpark no Windows precisa do Hadoop: aponte `HADOOP_HOME` para uma
 pasta que contenha `bin\winutils.exe`.
 
+## Quality gate
+
+Antes de gravar o Gold, o `etl/quality.py` valida o Silver e bloqueia a publicação se encontrar erro:
+`id_venda` vazio ou duplicado, `data_venda` nula/inválida, cliente/produto/categoria ausente,
+`quantidade <= 0` ou preço negativo. No Gold, confere a contagem do fato contra o Silver e se
+`cod_cliente`/`cod_produto` ficaram nulos.
+
+O que apenas avisa: preço ausente (o `valor_total` fica nulo), situação `desconhecida` e vendas
+canceladas/pendentes. Se houver erro, o pipeline sai com código 1 e não grava o Gold; Bronze e Silver
+ficam no disco para diagnóstico.
+
 ## O que não tem aqui
 
-Não tem orquestração (Airflow), quality gate com bloqueio de publicação, particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
+Não tem orquestração (Airflow), particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
 
-Se subir um degrau, a ordem seria: quality gate que reprova a publicação → particionamento por data → DAG no Airflow → escrita em Delta.
+Se subir um degrau, a ordem seria: particionamento por data → DAG no Airflow → escrita em Delta.
 
 ## SQL prático (Databricks CE)
 

@@ -52,16 +52,19 @@ def _gerar_dimensoes(silver: DataFrame) -> tuple[DataFrame, DataFrame, DataFrame
     return dim_cliente, dim_produto, fato_vendas
 
 
-def gravar_gold(silver: DataFrame, saida_gold: Path) -> dict[str, Path]:
-    """Cria e grava a camada Gold (dimensões + fato) em Parquet."""
-    saida_gold.mkdir(parents=True, exist_ok=True)
+def gerar_gold(silver: DataFrame) -> dict[str, DataFrame]:
+    """Gera as tabelas do modelo estrela a partir do Silver."""
     dim_cliente, dim_produto, fato = _gerar_dimensoes(silver)
-
-    tabelas = {
+    return {
         "dim_cliente": dim_cliente,
         "dim_produto": dim_produto,
         "fato_vendas": fato,
     }
+
+
+def gravar_gold(tabelas: dict[str, DataFrame], saida_gold: Path) -> dict[str, Path]:
+    """Grava as tabelas do Gold em Parquet."""
+    saida_gold.mkdir(parents=True, exist_ok=True)
     for nome, df in tabelas.items():
         (
             df.write.mode("overwrite")
@@ -69,5 +72,4 @@ def gravar_gold(silver: DataFrame, saida_gold: Path) -> dict[str, Path]:
             .option("compression", "snappy")
             .save(str(saida_gold / nome))
         )
-
     return {nome: saida_gold / nome for nome in tabelas}

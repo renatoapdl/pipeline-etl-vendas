@@ -10,7 +10,7 @@ from pathlib import Path
 RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
-from etl import extract, gold, load, transform  # noqa: E402
+from etl import extract, gold, load, quality, transform  # noqa: E402
 
 ENTRADA_PADRAO = RAIZ / "dados" / "vendas_bruto.csv"
 SAIDA_PADRAO = RAIZ / "data"
@@ -26,6 +26,11 @@ def get_spark(app_name: str = "etl-vendas"):
     if "PYSPARK_GATEWAY_PORT" not in os.environ:
         builder = builder.master("local[*]")
     return builder.getOrCreate()
+
+
+def _imprimir_relatorio(relatorio: quality.Relatorio) -> None:
+    for linha in relatorio.linhas():
+        print(f"    {linha}")
 
 
 def main() -> None:
@@ -60,19 +65,25 @@ def main() -> None:
             atual = funcao(atual)
             print(f"[{etapas.index((nome, funcao)) + 3}] SILVER - {nome}: {antes:>3} -> {atual.count():>3}")
 
-        invalidas = atual.filter("data_venda is null").count()
-        if invalidas:
-            print(f"    ATENCAO: {invalidas} venda(s) com data invalida")
-
-        sem_preco = atual.filter("valor_unitario is null").count()
-        if sem_preco:
-            print(f"    ATENCAO: {sem_preco} venda(s) sem valor_unitario; valor_total fica nulo")
-
         destino_tratado = load.gravar_parquet(atual, args.saida / "silver" / "vendas")
         print(f"\nSILVER gravado em {destino_tratado.relative_to(RAIZ)}")
         print(f"    linhas finais: {atual.count()}\n")
 
-        gold_paths = gold.gravar_gold(atual, args.saida / "gold")
+        print("QUALITY GATE - Silver")
+        relatorio_silver = quality.verificar_silver(atual)
+        _imprimir_relatorio(relatorio_silver)
+        if relatorio_silver.tem_erros:
+            raise SystemExit("\nQUALITY GATE: publicacao do Gold bloqueada\n")
+
+        tabelas_gold = gold.gerar_gold(atual)
+        print("\nQUALITY GATE - Gold")
+        relatorio_gold = quality.verificar_gold(tabelas_gold, atual)
+        _imprimir_relatorio(relatorio_gold)
+        if relatorio_gold.tem_erros:
+            raise SystemExit("\nQUALITY GATE: publicacao do Gold bloqueada\n")
+
+        print()
+        gold_paths = gold.gravar_gold(tabelas_gold, args.saida / "gold")
         print("GOLD gravado:")
         for camada, caminho in gold_paths.items():
             print(f"     - {camada}: {caminho.relative_to(RAIZ)}")
