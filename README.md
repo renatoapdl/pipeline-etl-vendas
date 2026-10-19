@@ -54,10 +54,17 @@ Saída esperada:
 [7] SILVER - R5 nulos preenchidos:  25 ->  25
 [8] SILVER - R6 duplicadas removidas:  25 ->  23
 [9] SILVER - D1 valor total criado:  23 ->  23
-    ATENCAO: 1 venda(s) sem valor_unitario; valor_total fica nulo
 
 SILVER gravado em data\silver\vendas
     linhas finais: 23
+
+QUALITY GATE - Silver
+    AVISO: 1 linha(s) sem valor_unitario (valor_total fica nulo)
+    AVISO: 2 linha(s) com situacao desconhecida
+    AVISO: 3 venda(s) cancelada(s) ou pendente(s)
+
+QUALITY GATE - Gold
+    nenhum problema encontrado
 
 GOLD gravado:
      - dim_cliente: data\gold\dim_cliente
