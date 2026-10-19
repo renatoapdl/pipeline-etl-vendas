@@ -1,6 +1,6 @@
 # PRD — pipeline-etl-vendas
 
-> Documento de requisitos do case de portfólio. Descreve o que o projeto entrega e por quê, não o passo a passo de uso (isso fica no `README.md`). Regras de trabalho com o assistente ficam no `AGENTS.md` global.
+> Documento de requisitos do case de portfólio. Descreve o que o projeto entrega e por quê, não o passo a passo de uso.
 
 ## 1. Resumo
 
@@ -45,7 +45,7 @@ Quem avalia o portfólio (recrutador técnico / time de dados), que clona o repo
 
 **Fora de escopo nesta fase (por decisão):**
 
-- Orquestração real (Airflow rodando). Só a imagem da lógica (DAG impressa).
+- Orquestração real (Airflow rodando).
 - Particionamento, Delta Lake no pipeline, Kubernetes, warehouse, SQLite e fonte via API (V3/depois).
 
 ## 6. Requisitos funcionais
