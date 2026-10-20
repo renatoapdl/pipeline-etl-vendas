@@ -187,6 +187,11 @@ O que apenas avisa: preço ausente (o `valor_total` fica nulo), situação `desc
 canceladas/pendentes. Se houver erro, o pipeline sai com código 1 e não grava o Gold; Bronze e Silver
 ficam no disco para diagnóstico.
 
+![Quality gate bloqueando a publicacao do Gold](imagens/print_quality_gate.png)
+
+O print mostra o gate reprovando uma base com data inválida: o ERRO bloqueia, o Silver continua gravado
+para diagnóstico e o processo termina com `EXIT=1`.
+
 ## O que não tem aqui
 
 Não tem orquestração (Airflow), particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
