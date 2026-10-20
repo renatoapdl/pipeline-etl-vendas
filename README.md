@@ -1,5 +1,6 @@
 ﻿# ETL de vendas: CSV --> Bronze --> Silver --> Gold (Medallion)
 
+[![testes](https://github.com/renatoapdl/pipeline-etl-vendas/actions/workflows/ci.yml/badge.svg)](https://github.com/renatoapdl/pipeline-etl-vendas/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)](https://spark.apache.org/)
 [![PySpark](https://img.shields.io/badge/PySpark-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://spark.apache.org/)
