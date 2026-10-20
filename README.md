@@ -169,6 +169,10 @@ O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisã
 11 passed
 ```
 
+Os testes rodam a cada push e pull request na `main` pelo GitHub Actions
+([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Ubuntu, Java 11 e Python 3.9.
+O verde da badge no topo reflete o último run.
+
 Cobrem: valor com moeda e vírgula, data em `dd/mm/aaaa`, texto com espaço e caixa alta, duplicada
 mantendo a data mais recente, nulo como `null` e como `""`, campo derivado, linha sem id/data, e o
 preço ausente continuar nulo, além do gate aprovar uma base válida e reprovar uma data inválida.
