@@ -15,15 +15,17 @@
 flowchart LR
   A[CSV vendas_bruto.csv] --> B["<b>Bronze</b><br/>data/bronze/vendas"]
   B --> C["<b>Silver</b><br/>data/silver/vendas<br/>R1-R6 + D1"]
-  C --> D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_cliente + dim_produto"]
-  D --> E["SQL 01-08<br/>Databricks CE"]
+  C --> Q{"<b>Quality gate</b><br/>bloqueia se erro"}
+  Q -->|aprovado| D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_cliente + dim_produto"]
+  Q -.->|erro| X["Gold nao publicado<br/>EXIT=1"]
+  D --> E["SQL 01-10<br/>Databricks CE"]
 ```
 
 ![ETL](imagens/print_etl.png)
 
 Pipeline de dados em PySpark com arquitetura Medallion: lê um CSV sujo, grava a camada Bronze, limpa e transforma para a camada Silver e gera as dimensões + fato na camada Gold.
 
-411 linhas de código (sem testes), 11 testes, roda em cerca de 15 segundos.
+424 linhas de código (sem testes), 11 testes, roda em cerca de 15 segundos.
 
 Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
 
@@ -40,69 +42,23 @@ python etl/run.py               # o pipeline inteiro
 python -m pytest tests -q       # os testes
 ```
 
-Saída esperada:
+Saída esperada (o log completo está no print acima):
 
 ```text
-[1] BRONZE - extraido: 27 linhas de vendas_bruto.csv
-    colunas: id_venda, id_cliente, data_venda, produto, categoria, quantidade, valor_unitario, canal, situacao
+27 linhas entram -> 25 (R1 descarta sem id/data) -> 23 (R6 remove duplicadas)
+Bronze/Silver/Gold gravados em data\.
 
-[2] BRONZE gravado em data\bronze\vendas
+O gate avisa 3 situações (preço ausente, situação desconhecida, venda
+cancelada) e aprova o Gold.
 
-[3] SILVER - R1 descartadas sem id ou data:  27 ->  25
-[4] SILVER - R2 datas convertidas:  25 ->  25
-[5] SILVER - R3 valores convertidos:  25 ->  25
-[6] SILVER - R4 texto normalizado:  25 ->  25
-[7] SILVER - R5 nulos preenchidos:  25 ->  25
-[8] SILVER - R6 duplicadas removidas:  25 ->  23
-[9] SILVER - D1 valor total criado:  23 ->  23
-
-SILVER gravado em data\silver\vendas
-    linhas finais: 23
-
-QUALITY GATE - Silver
-    AVISO: 1 linha(s) sem valor_unitario (valor_total fica nulo)
-    AVISO: 2 linha(s) com situacao desconhecida
-    AVISO: 3 venda(s) cancelada(s) ou pendente(s)
-
-QUALITY GATE - Gold
-    nenhum problema encontrado
-
-GOLD gravado:
-     - dim_cliente: data\gold\dim_cliente
-     - dim_produto: data\gold\dim_produto
-     - fato_vendas: data\gold\fato_vendas
-
-ETL (Medallion) concluido com sucesso
+EXIT=0
 ```
 
 ## O que acontece
 
-```
-dados/vendas_bruto.csv
-        │
-        ▼
-   ┌─────────┐   lê o CSV como texto, sem corrigir nada
-   │ extract │   (schema declarado, tudo como string)
-   └────┬────┘
-        ▼
-  data/bronze/vendas   ← Parquet como o dado chegou (Bronze)
-        │
-        ▼
-   ┌───────────┐  6 regras, uma função cada
-   │ transform │  descartar, datas, valores, texto, nulos, duplicadas
-   └─────┬─────┘  + 1 campo derivado (valor_total)
-         ▼
-  data/silver/vendas   ← Parquet limpo, tipado, sem duplicata (Silver)
-         │
-         ▼
-   ┌───────────┐  star schema: 2 dimensões + 1 fato
-   │   gold    │  dim_cliente, dim_produto, fato_vendas
-   └─────┬─────┘
-         ▼
-  data/gold/*          ← Parquet pronto para análise/SQL (Gold)
-```
-
 O Bronze é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando com o Silver, e o dado original não se perde.
+
+Cada camada tem uma responsabilidade: o `extract` lê o CSV com schema declarado (`string`); o `transform` aplica as 6 regras + o campo derivado; o `gold` monta o star schema; e o `quality.py` decide, entre o Silver e o Gold, se a publicação passa.
 
 ## A sujeira do CSV e a regra que existe por causa dela
 
@@ -157,8 +113,8 @@ O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisã
 | `etl/extract.py` | 40 | lê o CSV, com schema declarado |
 | `etl/transform.py` | 61 | as 6 regras + o campo derivado |
 | `etl/load.py` | 19 | grava Parquet |
-| `etl/gold.py` | 73 | dimensões + fato (star schema da camada Gold) |
-| `etl/run.py` | 85 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
+| `etl/gold.py` | 75 | dimensões + fato (star schema da camada Gold) |
+| `etl/run.py` | 96 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
 | `etl/quality.py` | 133 | quality gate: valida o Silver e bloqueia o Gold se houver erro |
 | `tests/test_transform.py` | 133 | 9 testes, um por regra e dois de borda |
 | `tests/test_quality.py` | 70 | 2 testes do quality gate |
