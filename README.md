@@ -5,6 +5,7 @@
 [![Apache Spark](https://img.shields.io/badge/Apache%20Spark-FDEE21?style=for-the-badge&logo=apachespark&logoColor=black)](https://spark.apache.org/)
 [![PySpark](https://img.shields.io/badge/PySpark-E25A1C?style=for-the-badge&logo=apachespark&logoColor=white)](https://spark.apache.org/)
 [![Databricks](https://img.shields.io/badge/Databricks-FF3621?style=for-the-badge&logo=databricks&logoColor=white)](https://www.databricks.com/)
+[![Apache Airflow](https://img.shields.io/badge/Apache%20Airflow-017CEE?style=for-the-badge&logo=apacheairflow&logoColor=white)](https://airflow.apache.org/)
 [![SQL](https://img.shields.io/badge/SQL-4479A1?style=for-the-badge&logoColor=white)](https://en.wikipedia.org/wiki/SQL)
 [![Apache Parquet](https://img.shields.io/badge/Parquet-50ABF1?style=for-the-badge&logo=apacheparquet&logoColor=white)](https://parquet.apache.org/)
 [![pytest](https://img.shields.io/badge/pytest-0A9EDC?style=for-the-badge&logo=pytest&logoColor=white)](https://docs.pytest.org/)
@@ -84,8 +85,7 @@ Resultado: 27 linhas entram, 23 saem. Nenhum `id_venda` repetido, nenhuma data n
 2. A regra de situação vazia checava texto vazio (`""`), e o CSV entrega `null`. O teste montava o
    DataFrame com `""` e passava; o pipeline real deixava `situacao` nula. O teste virou parametrizado
    (`null` e `""`) e a regra passou a checar os dois.
-3. `to_date` não aceita lista de formatos no PySpark 3.5 (`Method to_date([Column, ArrayList]) does
-   not exist`). Resolvido com `when` escolhendo o formato antes de converter.
+3. `to_date` não aceita lista de formatos no PySpark 3.5 (`Method to_date([Column, ArrayList]) does not exist`). Resolvido com `when` escolhendo o formato antes de converter.
 4. `Python worker failed to connect back` nos 7 testes. O worker do Spark sobe o `python` que estiver
    no PATH, e na minha máquina era um Python 3.14 sem o PySpark. Resolvido apontando `PYSPARK_PYTHON`
    para o mesmo interpretador do driver.
@@ -153,11 +153,33 @@ ficam no disco para diagnóstico.
 O print mostra o gate reprovando uma base com data inválida: o ERRO bloqueia, o Silver continua gravado
 para diagnóstico e o processo termina com `EXIT=1`.
 
+## Orquestração com Airflow
+
+O pipeline roda no Airflow 3, num ambiente local criado com Astro CLI. A DAG é uma só, `etl_vendas`, com
+seis tasks na ordem `bronze >> silver >> gate_silver >> gold_gerar >> gate_gold >> publicar_gold`.
+Ela não fica neste repositório porque o papel dela é orquestrar: cada tarefa sobe um container `etl-vendas:3.5.3` (Python 3.9 + PySpark 3.5.3 + JDK 17)
+que importa este código e executa `stage.py <etapa>`.
+
+O gate é onde a DAG falha. Se o `quality.py` reprova o Silver, o `stage.py` termina com código 1,
+a tarefa `gate_silver` falha e as três seguintes ficam como `upstream_failed`. O Gold não é reescrito.
+
+| Sucesso (6/6) | Gate reprovando (Gold não publicado) |
+|---|---|
+| ![DAG etl_vendas com as seis tarefas em sucesso](imagens/dag_grafico.png) | ![Gate reprovando e tarefas seguintes em upstream_failed](imagens/print_dag_falha.png) |
+
+Para testar esse caminho, injetei três defeitos numa cópia do CSV (`31/02/2026` em `data_venda`,
+`id_cliente` vazio e `quantidade = 0`): Bronze e Silver passaram, o `gate_silver` reprovou e o Gold
+continuou com o resultado da execução anterior. Depois de restaurar o CSV, a DAG voltou a 6/6.
+
+O agendamento é `schedule=None` pois com um CSV estático, a execução manual é o que faz
+sentido mostrar. Numa fonte recorrente, bastaria `schedule="@daily"` com `catchup=False`.
+
 ## O que não tem aqui
 
-Não tem orquestração (Airflow), particionamento, Delta Lake, Kubernetes, nem carga em warehouse.
+Não tem particionamento, Delta Lake, Kubernetes, nem carga em warehouse. A orquestração com Airflow
+existe, mas fica no ambiente local de estudos, fora deste repositório.
 
-Se subir um degrau, a ordem seria: particionamento por data → DAG no Airflow → escrita em Delta.
+Se subir um degrau, a ordem seria: particionamento por data → escrita em Delta → carga em um warehouse.
 
 ## SQL prático (Databricks CE)
 
