@@ -1,4 +1,4 @@
-﻿# ETL de vendas: CSV --> Bronze --> Silver --> Gold (Medallion)
+﻿# ETL Olist: 9 CSVs --> Bronze --> Silver --> Gold (Medallion)
 
 [![testes](https://github.com/renatoapdl/pipeline-etl-vendas/actions/workflows/ci.yml/badge.svg)](https://github.com/renatoapdl/pipeline-etl-vendas/actions/workflows/ci.yml)
 [![Python](https://img.shields.io/badge/Python-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
@@ -14,204 +14,230 @@
 
 ```mermaid
 flowchart LR
-  A[CSV vendas_bruto.csv] --> B["<b>Bronze</b><br/>data/bronze/vendas"]
-  B --> C["<b>Silver</b><br/>data/silver/vendas<br/>R1-R6 + D1"]
-  C --> Q{"<b>Quality gate</b><br/>bloqueia se erro"}
-  Q -->|aprovado| D["<b>Gold</b><br/>data/gold<br/>fato_vendas + dim_cliente + dim_produto"]
-  Q -.->|erro| X["Gold nao publicado<br/>EXIT=1"]
+  A["9 CSVs<br/>dados/olist"] --> B["<b>Bronze</b><br/>data/bronze<br/>9 tabelas cruas"]
+  B --> C["<b>Silver</b><br/>data/silver<br/>7 tabelas limpas"]
+  C --> Q1{"<b>Gate Silver</b><br/>vazio, grão, nulos"}
+  Q1 -->|aprovado| G["<b>Gold</b> em memória<br/>4 dims + 2 fatos"]
+  G --> Q2{"<b>Gate Gold</b><br/>FKs, contagem, somas"}
+  Q1 -.->|erro| X["Gold não publicado<br/>EXIT=1"]
+  Q2 -.->|erro| X
+  Q2 -->|aprovado| D["<b>Gold</b><br/>data/gold"]
   D --> E["SQL 01-10<br/>Databricks CE"]
 ```
 
 ![ETL](imagens/print_etl.png)
 
-Pipeline de dados em PySpark com arquitetura Medallion: lê um CSV sujo, grava a camada Bronze, limpa e transforma para a camada Silver e gera as dimensões + fato na camada Gold.
+Pipeline em PySpark com arquitetura Medallion sobre o Brazilian E-Commerce Public Dataset by Olist, cerca de 100 mil pedidos feitos entre 2016 e 2018. O pipeline lê os 9 CSVs originais, preserva o dado bruto na Bronze, limpa e tipa 7 tabelas na Silver, monta um modelo estrela com 4 dimensões e 2 fatos na Gold e valida antes de publicar.
 
-424 linhas de código (sem testes), 11 testes, roda em cerca de 15 segundos.
+- 756 linhas de código (sem testes),
+- 22 testes
+- O pipeline completo roda em poucos minutos, em Spark local.
 
-Os dados são sintéticos e estão versionados em `dados/vendas_bruto.csv`, com sujeira proposital para cada regra do pipeline ter um motivo de existir.
+Os dados são públicos (Kaggle) e ficam em `dados/olist/`, fora do versionamento.
 
 ## Como rodar
 
-Precisa de Python 3.9+ e Java 11+.
+Precisa de Python 3.9+, Java 11+ e da base Olist baixada.
+
+1. Baixe o [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) no Kaggle.
+2. Extraia os 9 CSVs em `dados/olist/`, mantendo os nomes originais:
+
+```text
+olist_customers_dataset.csv
+olist_geolocation_dataset.csv
+olist_order_items_dataset.csv
+olist_order_payments_dataset.csv
+olist_order_reviews_dataset.csv
+olist_orders_dataset.csv
+olist_products_dataset.csv
+olist_sellers_dataset.csv
+product_category_name_translation.csv
+```
+
+3. Crie o ambiente e instale as dependências:
 
 ```bash
 python -m venv .venv
 .venv\Scripts\activate          # Windows
 pip install -r requirements.txt
+```
 
-python etl/run.py               # o pipeline inteiro
+4. Rode o pipeline e os testes, a partir da raiz do repositório:
+
+```bash
+python -m etl.run               # o pipeline inteiro
 python -m pytest tests -q       # os testes
 ```
 
 Saída esperada (o log completo está no print acima):
 
 ```text
-27 linhas entram -> 25 (R1 descarta sem id/data) -> 23 (R6 remove duplicadas)
-Bronze/Silver/Gold gravados em data\.
-
-O gate avisa 3 situações (preço ausente, situação desconhecida, venda
-cancelada) e aprova o Gold.
-
-EXIT=0
+[1] BRONZE
+Lendo: olist_customers_dataset.csv
+...
+[2] SILVER
+translation OK
+...
+[3] QUALITY GATE - Silver
+    OK    translation: 71 linhas
+    OK    orders: grão ['order_id'] sem duplicatas
+    ...
+[4] GOLD
+[5] QUALITY GATE - Gold
+    OK    fato_itens: 112650 linhas (== Silver items)
+    OK    fato_itens price: 13591643.70 (== Silver)
+    AVISO reconciliação: 303 pedidos com price+frete != payment_value
+[6] PUBLICAR GOLD
+dim_cliente gravado em: ...
+...
+ETL Olist concluido com sucesso
 ```
+
+### No Windows
+
+- O PySpark precisa do Hadoop: aponte `HADOOP_HOME` para uma pasta que tenha `bin\winutils.exe`.
+- O worker do Spark sobe o `python` que estiver no PATH, o que quebra se ele não tiver PySpark. Aponte `PYSPARK_PYTHON` (e `PYSPARK_DRIVER_PYTHON`) para o Python do `.venv`. Os testes fixam isso em `tests/conftest.py`.
 
 ## O que acontece
 
-O Bronze é gravado antes de limpar, de propósito: dá para conferir o que mudou comparando com o Silver, e o dado original não se perde.
+O Bronze é gravado antes de limpar: dá para conferir o que mudou comparando com o Silver, o dado original fica preservado. Os 9 CSVs são ingeridos, mas só 7 viram tabelas no Silver. `geolocation` e `order_reviews` ficam preservados na Bronze para uma versão futura.
 
-Cada camada tem uma responsabilidade: o `extract` lê o CSV com schema declarado (`string`); o `transform` aplica as 6 regras + o campo derivado; o `gold` monta o star schema; e o `quality.py` decide, entre o Silver e o Gold, se a publicação passa.
+Cada camada tem uma responsabilidade:
 
-## A sujeira do CSV e a regra que existe por causa dela
+- `bronze.py` lê os CSVs com schema não declarado (tudo como texto) e grava o Parquet cru.
+- `silver.py` aplica a limpeza e a tipagem, uma função por tabela, mantendo o grão original.
+- `gold.py` monta o modelo estrela em memória (dimensões e fatos), e só grava depois do gate.
+- `quality.py` recebe DataFrames já em memória, valida Silver e Gold e decide se a publicação passa.
+- `load.py` grava Parquet de forma idempotente (diretório temporário + move, por causa do lock do Windows).
+- `run.py` executa tudo numa sessão Spark só: Bronze, Silver, gate do Silver, Gold em memória, gate do Gold e publicação.
 
-| O que tem no CSV | Regra | O que faz |
-|------------------|-------|-----------|
-| `189,90` e `R$ 1.234,56` | R3 converter valores | tira o `R$`, remove o ponto de milhar, troca a vírgula por ponto e vira `double` |
-| `2026-01-05` e `17/02/2026` | R2 padronizar datas | as duas viram `date` |
-| `  Notebook  `, `CABO USB`, `CANCELADO` | R4 normalizar texto | `trim` + `lower`, para o agrupamento não quebrar |
-| `quantidade` e `situacao` vazias | R5 preencher nulos | quantidade vira 1; situação vira `desconhecida` |
-| `VEN-0004` e `VEN-0011` aparecem 2 vezes | R6 remover duplicadas | `row_number` por `id_venda` ordenado por data, fica a mais recente |
-| 1 linha sem `id_venda` e 1 sem `data_venda` | R1 descartar incompletos | sai do resultado e aparece na contagem do log |
-| 1 linha sem preço | nenhuma | fica nulo de propósito, e o log avisa (ver abaixo) |
-| campo vazio | nenhuma | o Spark lê como `null`, não como texto vazio |
+## Modelo estrela (Gold)
 
-Resultado: 27 linhas entram, 23 saem. Nenhum `id_venda` repetido, nenhuma data nula.
+| Tabela | Grão | Colunas |
+|---|---|---|
+| `dim_cliente` | uma pessoa (`customer_unique_id`) | `cod_cliente`, `customer_unique_id`, `cidade`, `estado`, `cep_prefixo` |
+| `dim_vendedor` | um vendedor (`seller_id`) | `cod_vendedor`, `seller_id`, `cidade`, `estado`, `cep_prefixo` |
+| `dim_produto` | um produto (`product_id`) | `cod_produto`, `product_id`, `categoria_pt`, `categoria_en`, `peso_g`, `comprimento_cm`, `altura_cm`, `largura_cm`, `fotos_qty` |
+| `dim_data` | um dia | `cod_data`, `data`, `ano`, `mes`, `dia`, `trimestre`, `dia_semana`, `eh_fim_de_semana`, `ano_mes` |
+| `fato_itens` | um item de pedido (`order_id + order_item_id`) | `order_id`, `order_item_id`, `cod_cliente`, `cod_produto`, `cod_vendedor`, `cod_data`, `price`, `freight_value` |
+| `fato_pagamentos` | uma forma de pagamento do pedido (`order_id + payment_sequential`) | `order_id`, `payment_sequential`, `cod_cliente`, `cod_data`, `payment_type`, `payment_installments`, `payment_value` |
 
-## Quatro bugs que só apareceram ao rodar
+Dois fatos porque item e pagamento têm grãos diferentes: um pedido pode ter vários itens e ser pago de várias formas. O `customer_id` não é chave de cliente: o mesmo cliente aparece em vários pedidos, e é o `customer_unique_id` que identifica a pessoa.
 
-1. `189.90` virou `18990.0`. A primeira versão do CSV tinha valores em dois formatos e a regra
-   tratava ponto como separador de milhar. O resultado estava 100× errado, porque o `count()`
-   continuava 23. Corrigi padronizando a entrada em formato brasileiro: o número depende do sistema
-   de origem.
-2. A regra de situação vazia checava texto vazio (`""`), e o CSV entrega `null`. O teste montava o
-   DataFrame com `""` e passava; o pipeline real deixava `situacao` nula. O teste virou parametrizado
-   (`null` e `""`) e a regra passou a checar os dois.
-3. `to_date` não aceita lista de formatos no PySpark 3.5 (`Method to_date([Column, ArrayList]) does not exist`). Resolvido com `when` escolhendo o formato antes de converter.
-4. `Python worker failed to connect back` nos 7 testes. O worker do Spark sobe o `python` que estiver
-   no PATH, e na minha máquina era um Python 3.14 sem o PySpark. Resolvido apontando `PYSPARK_PYTHON`
-   para o mesmo interpretador do driver.
+## O que a base Olist ensinou
+
+1. `customer_id` não é cliente. São 99.441 `customer_id` para 96.096 `customer_unique_id`. Se a dimensão usasse `customer_id`, o mesmo comprador viraria várias linhas e a contagem de clientes sairia inflada. A `dim_cliente` usa `customer_unique_id` e guarda o endereço do pedido mais recente.
+2. A `dim_data` não usa surrogate key. Ela usa `cod_data = yyyyMMdd` (inteiro), gerada do menor ao maior `order_purchase_timestamp`, num total de 774 dias. Os fatos fazem `inner join` nessa chave, então uma data fora do calendário não passa.
+3. `price`, `freight_value` e `payment_value` são `decimal(12,2)`, não `double`. Somar `double` acumula erro de ponto flutuante e a reconciliação Gold × Silver não fecharia centavo a centavo.
+4. No Windows, o lock de diretório do Spark exige gravar em pasta temporária e mover depois, senão o `overwrite` falha e chega a aninhar pasta. Sem `winutils.exe` o PySpark nem sobe, e o worker sobe outro Python se `PYSPARK_PYTHON` não apontar para o do `.venv`.
 
 ## Decisões que eu tomei, e o porquê
 
-- Schema declarado com tudo como `string`. Se o Spark inferisse, `valor_unitario` viraria `string` numa linha e `double` na outra. Lendo tudo como texto, a conversão fica num só lugar.
-- Nem todo nulo é preenchido. `quantidade` vazia vira 1. Preço vazio continua nulo, porque inventar um valor distorceria o faturamento. O log avisa, e a decisão fica com quem lê.
-- Gravação com `overwrite`, o que torna a execução idempotente: rodar duas vezes não duplica linhas.
-- Sem particionamento por data, porque 23 linhas não justificam isso. Serve para mostrar o conceito.
-- `valor_total` é derivado, calculado a partir de `quantidade` e `valor_unitario`.
-
-## Como esse código foi construído
-
-O `etl/transform.py` foi reescrito à mão, regra por regra. Cada função (R1 a R6 + D1) cuida de uma coisa só, e `tratar()` junta tudo na ordem certa.
-
-O objetivo foi entender o problema antes de escrever a solução. Por isso, `quantidade` vazia virou 1, mas `valor_unitario` vazio continua nulo. E para duplicados, ficou só a venda mais recente por `id_venda`.
-
-O importante não é só o resultado (27 → 25 → 23), mas deixar cada decisão clara no código.
+- Schema não declarado no Bronze: a correção de tipo acontece num só lugar, no Silver. Se o Spark inferisse sozinho, a mesma coluna poderia sair com tipos diferentes entre arquivos.
+- Dois fatos, sem `fato_pedidos`: materializar um agregado de pedido num grão mais fino duplicaria valores. O frete fica em `fato_itens` e o `payment_value` já inclui frete.
+- Chaves surrogadas por `row_number` com ordenação fixa (`customer_unique_id`, `seller_id`, `product_id`): execução determinística e idempotente.
+- `left join` nas dimensões (o item não pode sumir) e `inner join` em `dim_data` (a data tem que existir no calendário).
+- Reconciliação `price + frete` × `payment_value` é aviso, não erro: 303 pedidos divergem por inconsistência da própria base Olist (voucher, juros). O que bloqueia é a preservação de somas e contagens do Silver para o Gold.
+- Gravação com `overwrite` via pasta temporária: rodar duas vezes não duplica linhas.
+- Sem particionamento: a base tem ~100 mil pedidos e roda local; particionar não se justifica aqui.
 
 ## Arquivos
 
 | Arquivo | Linhas | O que é |
-|---------|--------|---------|
-| `etl/extract.py` | 40 | lê o CSV, com schema declarado |
-| `etl/transform.py` | 61 | as 6 regras + o campo derivado |
-| `etl/load.py` | 19 | grava Parquet |
-| `etl/gold.py` | 75 | dimensões + fato (star schema da camada Gold) |
-| `etl/run.py` | 96 | executa o pipeline (Bronze → Silver → Gold) e mostra o efeito de cada regra |
-| `etl/quality.py` | 133 | quality gate: valida o Silver e bloqueia o Gold se houver erro |
-| `tests/test_transform.py` | 133 | 9 testes, um por regra e dois de borda |
-| `tests/test_quality.py` | 70 | 2 testes do quality gate |
+|---|---|---|
+| `etl/bronze.py` | 74 | lê os 9 CSVs crus e grava o Parquet da Bronze |
+| `etl/silver.py` | 147 | limpeza e tipagem das 7 tabelas do Silver |
+| `etl/gold.py` | 217 | dimensões e fatos do modelo estrela |
+| `etl/quality.py` | 198 | quality gate do Silver e do Gold |
+| `etl/run.py` | 53 | executa o pipeline completo numa sessão Spark |
+| `etl/load.py` | 50 | gravação Parquet idempotente no Windows |
+| `etl/sessao.py` | 17 | configuração da SparkSession local |
+| `tests/conftest.py` | 24 | fixture do Spark para os testes |
+| `tests/test_silver.py` | 168 | testes de limpeza, tipagem e grão |
+| `tests/test_gold.py` | 179 | testes das dimensões, fatos e chaves |
+| `tests/test_quality.py` | 164 | testes do gate (relatório, bloqueios, somas) |
 
 ## Testes
 
 ```
-11 passed
+22 passed
 ```
 
-Os testes rodam a cada push e pull request na `main` pelo GitHub Actions
-([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Ubuntu, Java 11 e Python 3.9.
-O verde da badge no topo reflete o último run.
+Os testes independem dos dados: montam DataFrames pequenos em memória, então rodam no CI sem os CSVs nem os Parquets reais. Rodam a cada push e pull request na `main` pelo GitHub Actions ([`.github/workflows/ci.yml`](.github/workflows/ci.yml)): Ubuntu, Java 11 e Python 3.9. O verde da badge no topo reflete o último run.
 
-Cobrem: valor com moeda e vírgula, data em `dd/mm/aaaa`, texto com espaço e caixa alta, duplicada
-mantendo a data mais recente, nulo como `null` e como `""`, campo derivado, linha sem id/data, e o
-preço ausente continuar nulo, além do gate aprovar uma base válida e reprovar uma data inválida.
-
-No Windows, se aparecer `Python worker failed to connect back`, é o motivo do `PYSPARK_PYTHON` explicado
-acima. Se faltar o `winutils.exe`, o PySpark no Windows precisa do Hadoop: aponte `HADOOP_HOME` para uma
-pasta que contenha `bin\winutils.exe`.
+Cobrem: normalização e tipagem do Silver, grão sem duplicatas, nulos em campos-chave, chaves surrogadas e junções do Gold, contagem e preservação de somas do Silver para o Gold, e o gate bloqueando duplicata ou contagem divergente.
 
 ## Quality gate
 
-Antes de gravar o Gold, o `etl/quality.py` valida o Silver e bloqueia a publicação se encontrar erro:
-`id_venda` vazio ou duplicado, `data_venda` nula/inválida, cliente/produto/categoria ausente,
-`quantidade <= 0` ou preço negativo. No Gold, confere a contagem do fato contra o Silver e se
-`cod_cliente`/`cod_produto` ficaram nulos.
+Antes de publicar o Gold, o `etl/quality.py` valida as duas camadas:
 
-O que apenas avisa: preço ausente (o `valor_total` fica nulo), situação `desconhecida` e vendas
-canceladas/pendentes. Se houver erro, o pipeline sai com código 1 e não grava o Gold; Bronze e Silver
-ficam no disco para diagnóstico.
+- Silver: as 7 tabelas não vazias, grão sem duplicatas (`order_id`, `order_id + order_item_id`, `order_id + payment_sequential`) e campos-chave sem nulos.
+- Gold: grão dos dois fatos sem duplicatas, FKs (`cod_cliente`, `cod_produto`, `cod_vendedor`, `cod_data`) sem nulos, contagem igual ao Silver e somas de `price`, `freight_value` e `payment_value` preservadas.
+- Aviso: a reconciliação por pedido (`price + frete` × `payment_value`) é só aviso, 303 pedidos divergem na base original.
 
-![Quality gate bloqueando a publicacao do Gold](imagens/print_quality_gate.png)
+Se houver erro, o pipeline termina com código 1 e o Gold não é publicado; Bronze e Silver ficam no disco para diagnóstico.
 
-O print mostra o gate reprovando uma base com data inválida: o ERRO bloqueia, o Silver continua gravado
-para diagnóstico e o processo termina com `EXIT=1`.
+![Quality gate](imagens/print_quality_gate.png)
 
 ## Orquestração com Airflow
 
-O pipeline roda no Airflow 3, num ambiente local criado com Astro CLI. A DAG é uma só, `etl_vendas`, com
-seis tasks na ordem `bronze >> silver >> gate_silver >> gold_gerar >> gate_gold >> publicar_gold`.
-Ela não fica neste repositório porque o papel dela é orquestrar: cada tarefa sobe um container `etl-vendas:3.5.3` (Python 3.9 + PySpark 3.5.3 + JDK 17)
-que importa este código e executa `stage.py <etapa>`.
+O pipeline roda no Airflow 3, num ambiente local criado com Astro CLI. A DAG é uma só, `etl_vendas`, com seis tasks na ordem `bronze >> silver >> gate_silver >> gold_gerar >> gate_gold >> publicar_gold`. Ela não fica neste repositório porque o papel dela é orquestrar: cada tarefa sobe um container `etl-vendas:3.5.3` (Python 3.9 + PySpark 3.5.3 + JDK 17) que importa este código e executa `stage.py <etapa>`.
 
-O gate é onde a DAG falha. Se o `quality.py` reprova o Silver, o `stage.py` termina com código 1,
-a tarefa `gate_silver` falha e as três seguintes ficam como `upstream_failed`. O Gold não é reescrito.
+O gate roda dentro da DAG: se o `quality.py` reprova o Silver ou o Gold, o `stage.py` termina com código 1, a publicação é interrompida e o Gold não é reescrito.
 
-| Sucesso (6/6) | Gate reprovando (Gold não publicado) |
-|---|---|
-| ![DAG etl_vendas com as seis tarefas em sucesso](imagens/dag_grafico.png) | ![Gate reprovando e tarefas seguintes em upstream_failed](imagens/print_dag_falha.png) |
+![DAG etl_vendas com as seis tarefas em sucesso](imagens/dag_grafico.png)
 
-Para testar esse caminho, injetei três defeitos numa cópia do CSV (`31/02/2026` em `data_venda`,
-`id_cliente` vazio e `quantidade = 0`): Bronze e Silver passaram, o `gate_silver` reprovou e o Gold
-continuou com o resultado da execução anterior. Depois de restaurar o CSV, a DAG voltou a 6/6.
-
-O agendamento é `schedule=None` pois com um CSV estático, a execução manual é o que faz
-sentido mostrar. Numa fonte recorrente, bastaria `schedule="@daily"` com `catchup=False`.
+O agendamento é `schedule=None` porque a base é estática e a execução manual é o que faz sentido mostrar. Numa fonte recorrente, bastaria `schedule="@daily"` com `catchup=False`.
 
 ## O que não tem aqui
 
-Não tem particionamento, Delta Lake, Kubernetes, nem carga em warehouse. A orquestração com Airflow
-existe, mas fica no ambiente local de estudos, fora deste repositório.
+Não tem particionamento, Delta Lake no pipeline, Kubernetes, nem carga em warehouse. As tabelas `geolocation` e `order_reviews` são ingeridas na Bronze, mas ficam fora do modelo por enquanto. A orquestração com Airflow existe, mas fica no ambiente local, fora deste repositório.
 
-Se subir um degrau, a ordem seria: particionamento por data → escrita em Delta → carga em um warehouse.
+O próximo passo seria particionar por data, escrever em Delta e carregar em um warehouse.
 
 ## SQL prático (Databricks CE)
 
-Foram desenvolvidas e validadas no [Databricks Community Edition](https://community.cloud.databricks.com/) 10 queries SQL aplicadas aos dados reais do projeto, cobrindo agregações, JOIN, GROUP BY, HAVING, Window Functions (ROW_NUMBER, RANK, LAG, SUM() OVER), Esquema Estrela (2 dimensões + 1 fato), JOIN no modelo estrela e CTEs + Subqueries.
+Desenvolvi e validei 10 queries SQL no [Databricks Community Edition](https://community.cloud.databricks.com/) sobre os dados reais do projeto. Elas cobrem agregações, JOIN, GROUP BY, CTEs, Window Functions (`ROW_NUMBER`, `SUM() OVER`) e consultas ao modelo estrela (fato + dimensão).
 
-As queries leem as tabelas criadas a partir do Parquet do ETL: `silver.vendas` (camada limpa, tipada) para as queries 01-06 e 08, e as tabelas do modelo estrela (Gold) nas queries 07 (definição das dimensões e do fato), 09 e 10 (consulta com JOIN entre fato e dimensão). As 09 e 10 devolvem o mesmo resultado das 01 e 03, então servem de reconciliação entre Gold e Silver. O passo a passo de carga está em [DATABRICKS.md](DATABRICKS.md).
+As queries leem as 13 tabelas criadas a partir do Parquet do ETL: `silver.*` (camada limpa e tipada) e `gold.*` (modelo estrela). A `10_reconciliacao_gold_silver.sql` compara as somas do Gold com as do Silver e devolve diferença `0,00` nas três métricas. O passo a passo de carga está em [DATABRICKS.md](DATABRICKS.md).
 
 Os arquivos estão em [sql/](sql/).
 
 | Query | Arquivo | Objetivo |
 |---|---|---|
-| 01 | [01_receita_por_categoria.sql](sql/01_receita_por_categoria.sql) | Receita total e quantidade vendida por categoria, com filtro por grupos (HAVING). |
-| 02 | [02_vendas_por_canal_e_mes.sql](sql/02_vendas_por_canal_e_mes.sql) | Vendas por canal e mês (YEAR/MONTH), com agregações. |
-| 03 | [03_top_clientes_por_receita.sql](sql/03_top_clientes_por_receita.sql) | Top clientes por receita, ticket médio com NULLIF, ordenação e filtro com HAVING. |
-| 04 | [04_window_functions.sql](sql/04_window_functions.sql) | ROW_NUMBER() e RANK() com PARTITION BY para ranqueamento por categoria. |
-| 05 | [05_acumulado_lag.sql](sql/05_acumulado_lag.sql) | SUM() OVER (running total por cliente) e LAG() para comparar com venda anterior. |
-| 06 | [06_running_total.sql](sql/06_running_total.sql) | Running total por categoria ao longo do tempo (SUM(SUM(...)) OVER (...)). |
-| 07 | [07_esquema_estrela.sql](sql/07_esquema_estrela.sql) | Criação do modelo estrela: dim_cliente, dim_produto (2 dimensões) e fato_vendas (1 fato). |
-| 08 | [08_cte_subquery.sql](sql/08_cte_subquery.sql) | CTEs encadeados + CROSS JOIN para comparar receita média por categoria. |
-| 09 | [09_receita_por_categoria_estrela.sql](sql/09_receita_por_categoria_estrela.sql) | Receita por categoria consultando o modelo estrela (JOIN fato + dim_produto); reconcilia com a 01. |
-| 10 | [10_top_clientes_estrela.sql](sql/10_top_clientes_estrela.sql) | Top clientes por receita via modelo estrela (JOIN fato + dim_cliente); reconcilia com a 03. |
+| 01 | [01_receita_por_categoria.sql](sql/01_receita_por_categoria.sql) | Top 10 categorias por receita (produtos + frete), com pedidos e itens. |
+| 02 | [02_receita_frete_por_estado.sql](sql/02_receita_frete_por_estado.sql) | Receita, frete e ticket médio por estado do cliente. |
+| 03 | [03_top_vendedores.sql](sql/03_top_vendedores.sql) | Top 10 vendedores por receita, com preço médio do item. |
+| 04 | [04_evolucao_mensal.sql](sql/04_evolucao_mensal.sql) | Evolução mês a mês usando a `dim_data`. |
+| 05 | [05_ticket_medio_por_pagamento.sql](sql/05_ticket_medio_por_pagamento.sql) | Ticket médio e volume por meio de pagamento. |
+| 06 | [06_distribuicao_parcelas.sql](sql/06_distribuicao_parcelas.sql) | Distribuição de parcelas (percentual de pagamentos e de valor). |
+| 07 | [07_top_clientes.sql](sql/07_top_clientes.sql) | Top 10 clientes por receita, agrupando por `customer_unique_id`. |
+| 08 | [08_clientes_recorrentes.sql](sql/08_clientes_recorrentes.sql) | Taxa de clientes recorrentes (2+ pedidos). |
+| 09 | [09_running_total_categoria.sql](sql/09_running_total_categoria.sql) | Receita acumulada por categoria ao longo dos meses (`SUM() OVER`). |
+| 10 | [10_reconciliacao_gold_silver.sql](sql/10_reconciliacao_gold_silver.sql) | Reconciliação Gold × Silver das somas (diferença `0,00`). |
 
 ### Validações no Databricks CE
 
+
+![01 - Receita por categoria](imagens/databricks_01_receita_por_categoria.png)
+
+![09 - Running total por categoria](imagens/databricks_09_running_total_categoria.png)
+
+![10 - Reconciliação Gold x Silver](imagens/databricks_10_reconciliacao_gold_silver.png)
+
+<details>
+<summary>Ver os outros 7 resultados no Databricks</summary>
+
 | Query | Print |
 |---|---|
-| 01 | ![01 - Receita por categoria](imagens/databricks_01_receita_por_categoria.png) |
-| 04 | ![04 - Window Functions](imagens/databricks_04_window_functions.png) |
-| 05 | ![05 - Acumulado com LAG](imagens/databricks_05_acumulado_lag.png) |
-| 06 | ![06 - Running total](imagens/databricks_06_running_total.png) |
-| 08 | ![08 - CTEs e Subqueries](imagens/databricks_08_cte_subquery.png) |
-| 09 | ![09 - Estrela: receita por categoria](imagens/databricks_09_receita_por_categoria_estrela.png) |
-| 10 | ![10 - Estrela: top clientes](imagens/databricks_10_top_clientes_estrela.png) |
+| 02 | ![02 - Receita e frete por estado](imagens/databricks_02_receita_frete_por_estado.png) |
+| 03 | ![03 - Top vendedores](imagens/databricks_03_top_vendedores.png) |
+| 04 | ![04 - Evolução mensal](imagens/databricks_04_evolucao_mensal.png) |
+| 05 | ![05 - Ticket médio por pagamento](imagens/databricks_05_ticket_medio_por_pagamento.png) |
+| 06 | ![06 - Distribuição de parcelas](imagens/databricks_06_distribuicao_parcelas.png) |
+| 07 | ![07 - Top clientes](imagens/databricks_07_top_clientes.png) |
+| 08 | ![08 - Clientes recorrentes](imagens/databricks_08_clientes_recorrentes.png) |
 
-> Base: Parquet gerado pelo ETL (`data/silver/vendas` e `data/gold/*`), carregado como tabelas no Databricks.
+</details>
+
+> Base: Parquet gerado pelo ETL (`data/silver/*` e `data/gold/*`), carregado como tabelas no Databricks.
