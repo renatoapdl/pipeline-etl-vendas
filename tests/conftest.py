@@ -15,7 +15,6 @@ def spark():
     session = (
         SparkSession.builder.appName("pytest-etl-olist")
         .master("local[2]")
-        .config("spark.sql.session.timeZone", "America/Fortaleza")
         .config("spark.sql.shuffle.partitions", "2")
         .config("spark.ui.enabled", "false")
         .getOrCreate()
