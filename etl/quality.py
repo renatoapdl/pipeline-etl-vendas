@@ -1,133 +1,198 @@
-"""Quality gate das camadas Silver e Gold.
+"""Quality gate do pipeline Olist — valida Silver e Gold antes de publicar.
 
-Checagens de severidade ERROR bloqueiam a publicacao do Gold; as de
-severidade WARN apenas aparecem no relatorio.
+As funções recebem DataFrames já em memória (sem ler do disco), para poderem
+ser testadas no CI, onde os Parquets e os CSVs reais não existem.
 """
-from __future__ import annotations
-
-from dataclasses import dataclass, field
 
 from pyspark.sql import DataFrame
 from pyspark.sql import functions as F
 
+TABELAS_SILVER = [
+    "translation",
+    "products",
+    "customers",
+    "sellers",
+    "orders",
+    "items",
+    "payments",
+]
 
-@dataclass
+
+# Relatório simples: acumula linhas OK/AVISO/ERRO e sinaliza se houve erro
 class Relatorio:
-    erros: list[str] = field(default_factory=list)
-    avisos: list[str] = field(default_factory=list)
+    def __init__(self) -> None:
+        self._linhas: list[str] = []
+        self.tem_erros = False
 
-    @property
-    def tem_erros(self) -> bool:
-        return bool(self.erros)
+    def ok(self, mensagem: str) -> None:
+        self._linhas.append(f"OK    {mensagem}")
+
+    def erro(self, mensagem: str) -> None:
+        self._linhas.append(f"ERRO  {mensagem}")
+        self.tem_erros = True
+
+    def aviso(self, mensagem: str) -> None:
+        self._linhas.append(f"AVISO {mensagem}")
 
     def linhas(self) -> list[str]:
-        linhas = [f"ERRO: {erro}" for erro in self.erros]
-        linhas += [f"AVISO: {aviso}" for aviso in self.avisos]
-        return linhas or ["nenhum problema encontrado"]
+        return self._linhas
 
 
-class QualityError(RuntimeError):
-    def __init__(self, relatorio: Relatorio):
-        self.relatorio = relatorio
-        super().__init__("quality gate bloqueou a publicacao")
+# Verificações genéricas
+def _verificar_nao_vazio(rel: Relatorio, nome: str, total: int) -> None:
+    if total == 0:
+        rel.erro(f"{nome}: tabela vazia")
+    else:
+        rel.ok(f"{nome}: {total} linhas")
 
 
-def _faltando(df: DataFrame, coluna: str) -> int:
-    valor = F.col(coluna)
-    return df.filter(valor.isNull() | (F.trim(valor) == "")).count()
+def _verificar_sem_duplicata(
+    rel: Relatorio, nome: str, df: DataFrame, chaves: list[str]
+) -> None:
+    duplicadas = df.groupBy(*chaves).count().where(F.col("count") > 1).count()
+    if duplicadas:
+        rel.erro(f"{nome}: {duplicadas} chaves duplicadas em {chaves}")
+    else:
+        rel.ok(f"{nome}: grão {chaves} sem duplicatas")
 
 
-def _erro_se(relatorio: Relatorio, quantidade: int, mensagem: str) -> None:
-    if quantidade:
-        relatorio.erros.append(f"{quantidade} {mensagem}")
+def _verificar_sem_nulo(
+    rel: Relatorio, nome: str, df: DataFrame, colunas: list[str]
+) -> None:
+    for coluna in colunas:
+        nulos = df.where(F.col(coluna).isNull()).count()
+        if nulos:
+            rel.erro(f"{nome}: {nulos} nulos em {coluna}")
+        else:
+            rel.ok(f"{nome}: {coluna} sem nulos")
 
 
-def _aviso_se(relatorio: Relatorio, quantidade: int, mensagem: str) -> None:
-    if quantidade:
-        relatorio.avisos.append(f"{quantidade} {mensagem}")
+def _verificar_soma(rel: Relatorio, nome: str, valor_gold, valor_silver) -> None:
+    if valor_gold != valor_silver:
+        rel.erro(f"{nome}: Gold={valor_gold} != Silver={valor_silver}")
+    else:
+        rel.ok(f"{nome}: {valor_gold} (== Silver)")
 
 
-def verificar_silver(df: DataFrame) -> Relatorio:
-    relatorio = Relatorio()
+# Validação da camada Silver
+def verificar_silver(tabelas: dict[str, DataFrame]) -> Relatorio:
+    rel = Relatorio()
 
-    _erro_se(relatorio, _faltando(df, "id_venda"), "linha(s) sem id_venda")
-    duplicadas = df.groupBy("id_venda").count().filter(F.col("count") > 1).count()
-    _erro_se(relatorio, duplicadas, "id_venda duplicado(s)")
-    _erro_se(
-        relatorio,
-        df.filter(F.col("data_venda").isNull()).count(),
-        "linha(s) com data_venda nula ou invalida",
+    for nome in TABELAS_SILVER:
+        _verificar_nao_vazio(rel, nome, tabelas[nome].count())
+
+    _verificar_sem_duplicata(rel, "customers", tabelas["customers"], ["customer_id"])
+    _verificar_sem_duplicata(rel, "sellers", tabelas["sellers"], ["seller_id"])
+    _verificar_sem_duplicata(rel, "orders", tabelas["orders"], ["order_id"])
+    _verificar_sem_duplicata(
+        rel, "items", tabelas["items"], ["order_id", "order_item_id"]
     )
-    _erro_se(relatorio, _faltando(df, "id_cliente"), "linha(s) sem id_cliente")
-    _erro_se(relatorio, _faltando(df, "produto"), "linha(s) sem produto")
-    _erro_se(relatorio, _faltando(df, "categoria"), "linha(s) sem categoria")
-    _erro_se(
-        relatorio,
-        df.filter(F.col("quantidade").isNull() | (F.col("quantidade") <= 0)).count(),
-        "linha(s) com quantidade nula ou menor/igual a zero",
-    )
-    _erro_se(
-        relatorio,
-        df.filter(F.col("valor_unitario") < 0).count(),
-        "linha(s) com valor_unitario negativo",
-    )
-
-    _aviso_se(
-        relatorio,
-        df.filter(F.col("valor_unitario").isNull()).count(),
-        "linha(s) sem valor_unitario (valor_total fica nulo)",
-    )
-    _aviso_se(relatorio, _faltando(df, "canal"), "linha(s) sem canal")
-    _aviso_se(
-        relatorio,
-        df.filter(F.col("situacao") == "desconhecida").count(),
-        "linha(s) com situacao desconhecida",
-    )
-    _aviso_se(
-        relatorio,
-        df.filter(F.col("situacao").isin("cancelado", "pendente")).count(),
-        "venda(s) cancelada(s) ou pendente(s)",
+    _verificar_sem_duplicata(
+        rel, "payments", tabelas["payments"], ["order_id", "payment_sequential"]
     )
 
-    return relatorio
-
-
-def verificar_gold(tabelas: dict[str, DataFrame], silver: DataFrame) -> Relatorio:
-    relatorio = Relatorio()
-
-    fato = tabelas["fato_vendas"]
-    _erro_se(
-        relatorio,
-        abs(fato.count() - silver.count()),
-        "linha(s) de diferenca entre Silver e fato_vendas",
+    _verificar_sem_nulo(
+        rel, "customers", tabelas["customers"], ["customer_id", "customer_unique_id"]
     )
-    _erro_se(
-        relatorio,
-        fato.filter(F.col("cod_cliente").isNull()).count(),
-        "linha(s) do fato sem cod_cliente",
+    _verificar_sem_nulo(rel, "sellers", tabelas["sellers"], ["seller_id"])
+    _verificar_sem_nulo(
+        rel,
+        "orders",
+        tabelas["orders"],
+        ["order_id", "customer_id", "order_purchase_timestamp"],
     )
-    _erro_se(
-        relatorio,
-        fato.filter(F.col("cod_produto").isNull()).count(),
-        "linha(s) do fato sem cod_produto",
+    _verificar_sem_nulo(
+        rel,
+        "items",
+        tabelas["items"],
+        ["order_id", "order_item_id", "product_id", "seller_id"],
     )
+    _verificar_sem_nulo(
+        rel, "payments", tabelas["payments"], ["order_id", "payment_sequential"]
+    )
+    _verificar_sem_nulo(rel, "products", tabelas["products"], ["product_id"])
 
-    dim_cliente = tabelas["dim_cliente"]
-    dim_produto = tabelas["dim_produto"]
-    _erro_se(
-        relatorio,
-        dim_cliente.count() - dim_cliente.select("cod_cliente").distinct().count(),
-        "cod_cliente duplicado em dim_cliente",
-    )
-    _erro_se(
-        relatorio,
-        dim_produto.count() - dim_produto.select("cod_produto").distinct().count(),
-        "cod_produto duplicado em dim_produto",
-    )
-
-    return relatorio
+    return rel
 
 
-def garantir(relatorio: Relatorio) -> None:
-    if relatorio.tem_erros:
-        raise QualityError(relatorio)
+# Validação da camada Gold (tabelas em memória, antes de publicar)
+def verificar_gold(
+    tabelas_gold: dict[str, DataFrame], tabelas_silver: dict[str, DataFrame]
+) -> Relatorio:
+    rel = Relatorio()
+    itens = tabelas_gold["fato_itens"]
+    pagamentos = tabelas_gold["fato_pagamentos"]
+    silver_items = tabelas_silver["items"]
+    silver_payments = tabelas_silver["payments"]
+
+    _verificar_sem_duplicata(rel, "fato_itens", itens, ["order_id", "order_item_id"])
+    _verificar_sem_duplicata(
+        rel, "fato_pagamentos", pagamentos, ["order_id", "payment_sequential"]
+    )
+
+    _verificar_sem_nulo(
+        rel, "fato_itens", itens, ["cod_cliente", "cod_produto", "cod_vendedor", "cod_data"]
+    )
+    _verificar_sem_nulo(rel, "fato_pagamentos", pagamentos, ["cod_cliente", "cod_data"])
+
+    # Contagem: os fatos não podem perder linhas em relação ao Silver
+    total_itens = itens.count()
+    total_silver_items = silver_items.count()
+    if total_itens != total_silver_items:
+        rel.erro(f"fato_itens: {total_itens} linhas != {total_silver_items} no Silver items")
+    else:
+        rel.ok(f"fato_itens: {total_itens} linhas (== Silver items)")
+
+    total_pagamentos = pagamentos.count()
+    total_silver_payments = silver_payments.count()
+    if total_pagamentos != total_silver_payments:
+        rel.erro(
+            f"fato_pagamentos: {total_pagamentos} linhas != "
+            f"{total_silver_payments} no Silver payments"
+        )
+    else:
+        rel.ok(f"fato_pagamentos: {total_pagamentos} linhas (== Silver payments)")
+
+    # Preservação de valores: o Gold não pode alterar somas do Silver
+    _verificar_soma(
+        rel,
+        "fato_itens price",
+        itens.agg(F.sum("price")).first()[0],
+        silver_items.agg(F.sum("price")).first()[0],
+    )
+    _verificar_soma(
+        rel,
+        "fato_itens freight_value",
+        itens.agg(F.sum("freight_value")).first()[0],
+        silver_items.agg(F.sum("freight_value")).first()[0],
+    )
+    _verificar_soma(
+        rel,
+        "fato_pagamentos payment_value",
+        pagamentos.agg(F.sum("payment_value")).first()[0],
+        silver_payments.agg(F.sum("payment_value")).first()[0],
+    )
+
+    # Reconciliação por pedido (insight da base Olist, não bloqueia)
+    itens_por_pedido = itens.groupBy("order_id").agg(
+        F.sum(F.col("price") + F.col("freight_value")).alias("valor_itens")
+    )
+    pagamentos_por_pedido = pagamentos.groupBy("order_id").agg(
+        F.sum("payment_value").alias("valor_pagamentos")
+    )
+    divergencias = (
+        itens_por_pedido.join(pagamentos_por_pedido, "order_id", "inner")
+        .withColumn("dif", F.col("valor_itens") - F.col("valor_pagamentos"))
+        .where(F.abs("dif") > F.lit(0.01))
+    )
+    divergentes = divergencias.count()
+    if divergentes:
+        soma_abs = divergencias.agg(F.sum(F.abs("dif"))).first()[0]
+        rel.aviso(
+            f"reconciliação: {divergentes} pedidos com price+frete != payment_value "
+            f"(diferença da base Olist, soma abs {soma_abs})"
+        )
+    else:
+        rel.ok("reconciliação: price+frete == payment_value por pedido (com item)")
+
+    return rel

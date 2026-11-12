@@ -32,3 +32,5 @@ jobs:
 
       - name: Roda os testes
         run: python -m pytest tests -q
+        env:
+          SPARK_LOCAL_IP: 127.0.0.1
