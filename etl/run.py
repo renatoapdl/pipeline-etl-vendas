@@ -9,7 +9,7 @@ RAIZ = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(RAIZ))
 
 from etl import bronze, gold, quality, silver  # noqa: E402
-from etl.sessao import get_spark  # noqa: E402
+from etl.session import get_spark  # noqa: E402
 
 
 def _imprimir(relatorio: quality.Relatorio) -> None:

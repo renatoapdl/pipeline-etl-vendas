@@ -17,8 +17,5 @@ derby.log
 .vscode/
 .DS_Store
 
-# Dados
-dados/olist/
-
 # Ferramentas locais (não fazem parte do repositório)
 ferramentas/

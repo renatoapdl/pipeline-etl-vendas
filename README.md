@@ -14,7 +14,7 @@
 
 ```mermaid
 flowchart LR
-  A["9 CSVs<br/>dados/olist"] --> B["<b>Bronze</b><br/>data/bronze<br/>9 tabelas cruas"]
+  A["9 CSVs<br/>data/raw/olist"] --> B["<b>Bronze</b><br/>data/bronze<br/>9 tabelas cruas"]
   B --> C["<b>Silver</b><br/>data/silver<br/>7 tabelas limpas"]
   C --> Q1{"<b>Gate Silver</b><br/>vazio, grão, nulos"}
   Q1 -->|aprovado| G["<b>Gold</b> em memória<br/>4 dims + 2 fatos"]
@@ -25,7 +25,7 @@ flowchart LR
   D --> E["SQL 01-10<br/>Databricks CE"]
 ```
 
-![ETL](imagens/print_etl.png)
+![ETL](images/print_etl.png)
 
 Pipeline em PySpark com arquitetura Medallion sobre o Brazilian E-Commerce Public Dataset by Olist, cerca de 100 mil pedidos feitos entre 2016 e 2018. O pipeline lê os 9 CSVs originais, preserva o dado bruto na Bronze, limpa e tipa 7 tabelas na Silver, monta um modelo estrela com 4 dimensões e 2 fatos na Gold e valida antes de publicar.
 
@@ -33,14 +33,14 @@ Pipeline em PySpark com arquitetura Medallion sobre o Brazilian E-Commerce Publi
 - 22 testes
 - O pipeline completo roda em poucos minutos, em Spark local.
 
-Os dados são públicos (Kaggle) e ficam em `dados/olist/`, fora do versionamento.
+Os dados são públicos (Kaggle) e ficam em `data/raw/olist/`, fora do versionamento.
 
 ## Como rodar
 
 Precisa de Python 3.9+, Java 11+ e da base Olist baixada.
 
 1. Baixe o [Brazilian E-Commerce Public Dataset by Olist](https://www.kaggle.com/datasets/olistbr/brazilian-ecommerce) no Kaggle.
-2. Extraia os 9 CSVs em `dados/olist/`, mantendo os nomes originais:
+2. Extraia os 9 CSVs em `data/raw/olist/`, mantendo os nomes originais:
 
 ```text
 olist_customers_dataset.csv
@@ -151,7 +151,7 @@ Dois fatos porque item e pagamento têm grãos diferentes: um pedido pode ter v�
 | `etl/quality.py` | 198 | quality gate do Silver e do Gold |
 | `etl/run.py` | 53 | executa o pipeline completo numa sessão Spark |
 | `etl/load.py` | 50 | gravação Parquet idempotente no Windows |
-| `etl/sessao.py` | 17 | configuração da SparkSession local |
+| `etl/session.py` | 17 | configuração da SparkSession local |
 | `tests/conftest.py` | 24 | fixture do Spark para os testes |
 | `tests/test_silver.py` | 168 | testes de limpeza, tipagem e grão |
 | `tests/test_gold.py` | 179 | testes das dimensões, fatos e chaves |
@@ -177,7 +177,7 @@ Antes de publicar o Gold, o `etl/quality.py` valida as duas camadas:
 
 Se houver erro, o pipeline termina com código 1 e o Gold não é publicado; Bronze e Silver ficam no disco para diagnóstico.
 
-![Quality gate](imagens/print_quality_gate.png)
+![Quality gate](images/print_quality_gate.png)
 
 ## Orquestração com Airflow
 
@@ -185,7 +185,7 @@ O pipeline roda no Airflow 3, num ambiente local criado com Astro CLI. A DAG é 
 
 O gate roda dentro da DAG: se o `quality.py` reprova o Silver ou o Gold, o `stage.py` termina com código 1, a publicação é interrompida e o Gold não é reescrito.
 
-![DAG etl_vendas com as seis tarefas em sucesso](imagens/dag_grafico.png)
+![DAG etl_vendas com as seis tarefas em sucesso](images/dag_grafico.png)
 
 O agendamento é `schedule=None` porque a base é estática e a execução manual é o que faz sentido mostrar. Numa fonte recorrente, bastaria `schedule="@daily"` com `catchup=False`.
 
@@ -219,24 +219,24 @@ Os arquivos estão em [sql/](sql/).
 ### Validações no Databricks CE
 
 
-![01 - Receita por categoria](imagens/databricks_01_receita_por_categoria.png)
+![01 - Receita por categoria](images/databricks_01_receita_por_categoria.png)
 
-![09 - Running total por categoria](imagens/databricks_09_running_total_categoria.png)
+![09 - Running total por categoria](images/databricks_09_running_total_categoria.png)
 
-![10 - Reconciliação Gold x Silver](imagens/databricks_10_reconciliacao_gold_silver.png)
+![10 - Reconciliação Gold x Silver](images/databricks_10_reconciliacao_gold_silver.png)
 
 <details>
 <summary>Ver os outros 7 resultados no Databricks</summary>
 
 | Query | Print |
 |---|---|
-| 02 | ![02 - Receita e frete por estado](imagens/databricks_02_receita_frete_por_estado.png) |
-| 03 | ![03 - Top vendedores](imagens/databricks_03_top_vendedores.png) |
-| 04 | ![04 - Evolução mensal](imagens/databricks_04_evolucao_mensal.png) |
-| 05 | ![05 - Ticket médio por pagamento](imagens/databricks_05_ticket_medio_por_pagamento.png) |
-| 06 | ![06 - Distribuição de parcelas](imagens/databricks_06_distribuicao_parcelas.png) |
-| 07 | ![07 - Top clientes](imagens/databricks_07_top_clientes.png) |
-| 08 | ![08 - Clientes recorrentes](imagens/databricks_08_clientes_recorrentes.png) |
+| 02 | ![02 - Receita e frete por estado](images/databricks_02_receita_frete_por_estado.png) |
+| 03 | ![03 - Top vendedores](images/databricks_03_top_vendedores.png) |
+| 04 | ![04 - Evolução mensal](images/databricks_04_evolucao_mensal.png) |
+| 05 | ![05 - Ticket médio por pagamento](images/databricks_05_ticket_medio_por_pagamento.png) |
+| 06 | ![06 - Distribuição de parcelas](images/databricks_06_distribuicao_parcelas.png) |
+| 07 | ![07 - Top clientes](images/databricks_07_top_clientes.png) |
+| 08 | ![08 - Clientes recorrentes](images/databricks_08_clientes_recorrentes.png) |
 
 </details>
 

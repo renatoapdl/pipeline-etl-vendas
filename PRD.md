@@ -8,7 +8,7 @@ Pipeline ETL em PySpark com arquitetura Medallion sobre o **Brazilian E-Commerce
 
 O case existe como prova prática para a transição para Engenharia de Dados: mostrar decisões de tratamento, idempotência, modelagem dimensional, quality gate e uso de SQL sobre uma base real.
 
-Os dados são públicos (Kaggle) e ficam em `dados/olist/`, fora do versionamento.
+Os dados são públicos (Kaggle) e ficam em `data/raw/olist/`, fora do versionamento.
 
 ## 2. Problema
 
@@ -35,7 +35,7 @@ Quem avalia o portfólio (recrutador técnico / time de dados), que clona o repo
 
 **Em escopo:**
 
-- Ingestão dos 9 CSVs de `dados/olist/` (schema não declarado, tudo como texto).
+- Ingestão dos 9 CSVs de `data/raw/olist/` (schema não declarado, tudo como texto).
 - Camada Bronze: Parquet como o dado chegou (9 arquivos).
 - Camada Silver: 7 tabelas limpas e tipadas (`translation`, `products`, `customers`, `sellers`, `orders`, `items`, `payments`).
 - Camada Gold: modelo estrela (`dim_cliente`, `dim_vendedor`, `dim_produto`, `dim_data`, `fato_itens`, `fato_pagamentos`).
@@ -54,7 +54,7 @@ Quem avalia o portfólio (recrutador técnico / time de dados), que clona o repo
 
 | ID | Requisito |
 |---|---|
-| RF1 | Ler os 9 CSVs de `dados/olist/` com header, UTF-8, delimitador vírgula e `inferSchema=false` (tudo texto). |
+| RF1 | Ler os 9 CSVs de `data/raw/olist/` com header, UTF-8, delimitador vírgula e `inferSchema=false` (tudo texto). |
 | RF2 | Gravar o dado como chegou em `data/bronze/<arquivo>` (Parquet), sem correção. |
 | RF3 | Silver `translation` — normalizar `product_category_name` (trim+lower), derivar `categoria_en` e remover duplicatas por categoria. |
 | RF4 | Silver `products` — trim em id/categoria, cast das medidas para `integer`, remover colunas de tamanho de nome/descrição e renomear para os nomes do modelo (`fotos_qty`, `peso_g`, `comprimento_cm`, `altura_cm`, `largura_cm`). |
@@ -96,12 +96,12 @@ Dois fatos, porque item e pagamento têm grãos diferentes (um pedido pode ter v
 ## 9. Fluxo
 
 ```
-9 CSVs (dados/olist) → bronze → Silver (7 tabelas) → gate Silver → gold (4 dims + 2 fatos, em memória) → gate Gold → publicar Gold → SQL / Databricks CE
+9 CSVs (data/raw/olist) → bronze → Silver (7 tabelas) → gate Silver → gold (4 dims + 2 fatos, em memória) → gate Gold → publicar Gold → SQL / Databricks CE
 ```
 
 ## 10. Entregáveis
 
-- `etl/` — `bronze.py` (74), `silver.py` (147), `gold.py` (217), `quality.py` (198), `run.py` (53), `load.py` (50), `sessao.py` (17); 756 linhas no total, sem testes.
+- `etl/` — `bronze.py` (74), `silver.py` (147), `gold.py` (217), `quality.py` (198), `run.py` (53), `load.py` (50), `session.py` (17); 756 linhas no total, sem testes.
 - `tests/` — `conftest.py` (24), `test_silver.py` (168), `test_gold.py` (179), `test_quality.py` (164); 22 testes.
 - `sql/01` a `sql/10`.
 - `README.md`, `DATABRICKS.md`.

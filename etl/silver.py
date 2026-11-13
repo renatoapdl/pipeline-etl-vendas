@@ -6,7 +6,7 @@ from pyspark.sql import DataFrame, SparkSession
 from pyspark.sql import functions as F
 
 from etl.load import gravar_parquet
-from etl.sessao import get_spark
+from etl.session import get_spark
 
 RAIZ = Path(__file__).resolve().parents[1]
 DADOS = Path(os.environ.get("ETL_DATA_DIR", RAIZ / "data"))

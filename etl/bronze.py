@@ -1,4 +1,4 @@
-"""Lê cada CSV em 'dados/olist' exatamente como eles chegaram, sem corrigir nada.
+"""Lê cada CSV em 'data/raw/olist' exatamente como eles chegaram, sem corrigir nada.
 
 Regra da camada: A correção acontece na transformação, e
 assim dá para conferir o que foi limpo comparando os dois Parquet.
@@ -12,12 +12,12 @@ from pathlib import Path
 from pyspark.sql import DataFrame, SparkSession
 
 from etl.load import gravar_parquet
-from etl.sessao import get_spark
+from etl.session import get_spark
 
 
 #Patch - caminhos (bronze)
 RAIZ = Path(__file__).resolve().parents[1]
-ORIGEM = RAIZ / "dados" / "olist"
+ORIGEM = Path(os.environ.get("ETL_RAW_DIR", RAIZ / "data" / "raw")) / "olist"
 DADOS = Path(os.environ.get("ETL_DATA_DIR", RAIZ / "data"))
 DESTINO = DADOS / "bronze"
 ARQUIVOS = [

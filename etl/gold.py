@@ -7,7 +7,7 @@ from pyspark.sql import functions as F
 from pyspark.sql.window import Window
 
 from etl.load import gravar_parquet
-from etl.sessao import get_spark
+from etl.session import get_spark
 
 
 #Path - caminhos 
